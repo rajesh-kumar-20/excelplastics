@@ -1,0 +1,398 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "naming_series:",
+ "creation": "2025-12-09 12:43:46.971007",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "mold_change_tab",
+  "naming_series",
+  "workflow_state",
+  "machine",
+  "mold_change_over",
+  "operator",
+  "operator_name",
+  "column_break_lltb",
+  "date",
+  "work_order",
+  "job_card",
+  "offloading_section",
+  "previous_mold",
+  "offloaded_shifted",
+  "column_break_zmfi",
+  "offloading_start_time",
+  "offloading_complete_time",
+  "next_mold_section",
+  "new_mold",
+  "loose_parts_check",
+  "column_break_makt",
+  "mold_load_start_time",
+  "mold_load_complete_time",
+  "section_break_vlaq",
+  "column_break_soyv",
+  "checked_by",
+  "checked_by_name",
+  "column_break_wlis",
+  "approved_by",
+  "approved_by_name",
+  "column_break_hena",
+  "quality_inspector",
+  "quality_inspector_name",
+  "process_check_tab",
+  "fit_check",
+  "loose_parts",
+  "cooling_airline_check",
+  "dry_resin",
+  "color_mixing",
+  "packing_table",
+  "packing_place",
+  "previous_product",
+  "next_product",
+  "quality_check_tab",
+  "line_clearance",
+  "any_defect",
+  "customer_complaint",
+  "as_per_specification",
+  "precaution",
+  "packing_as_per_specification",
+  "trained_workers",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "mold_change_tab",
+   "fieldtype": "Tab Break",
+   "label": "Mold Change"
+  },
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "hidden": 1,
+   "label": "Naming Series"
+  },
+  {
+   "fieldname": "workflow_state",
+   "fieldtype": "Link",
+   "hidden": 1,
+   "label": "Workflow State",
+   "options": "Workflow State"
+  },
+  {
+   "fieldname": "machine",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Machine",
+   "options": "Workstation"
+  },
+  {
+   "fieldname": "mold_change_over",
+   "fieldtype": "Link",
+   "label": "Mold Change Over",
+   "options": "Mold Change Over",
+   "search_index": 1
+  },
+  {
+   "fieldname": "operator",
+   "fieldtype": "Link",
+   "label": "Operator",
+   "options": "Employee"
+  },
+  {
+   "depends_on": "eval:doc.operator",
+   "fetch_from": "operator.employee_name",
+   "fieldname": "operator_name",
+   "fieldtype": "Data",
+   "label": "Operator Name"
+  },
+  {
+   "fieldname": "column_break_lltb",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Date"
+  },
+  {
+   "fieldname": "work_order",
+   "fieldtype": "Link",
+   "label": "Work Order",
+   "options": "Work Order",
+   "search_index": 1
+  },
+  {
+   "fieldname": "job_card",
+   "fieldtype": "Link",
+   "label": "Job Card",
+   "options": "Job Card",
+   "search_index": 1
+  },
+  {
+   "fieldname": "offloading_section",
+   "fieldtype": "Section Break",
+   "label": "Offloading"
+  },
+  {
+   "description": "Name of Mold Which is Off loaded/Label changing",
+   "fieldname": "previous_mold",
+   "fieldtype": "Data",
+   "label": "Previous Mold"
+  },
+  {
+   "default": "0",
+   "fieldname": "offloaded_shifted",
+   "fieldtype": "Check",
+   "label": "Offloaded Mold Shifted From Line"
+  },
+  {
+   "fieldname": "column_break_zmfi",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "offloading_start_time",
+   "fieldtype": "Datetime",
+   "label": "Offloading Start Time"
+  },
+  {
+   "fieldname": "offloading_complete_time",
+   "fieldtype": "Datetime",
+   "hidden": 1,
+   "label": "Offloading Complete Time"
+  },
+  {
+   "fieldname": "next_mold_section",
+   "fieldtype": "Section Break",
+   "label": "Next Mold"
+  },
+  {
+   "description": "Name of Mold Which is to be next loaded/Label changing",
+   "fieldname": "new_mold",
+   "fieldtype": "Data",
+   "label": "New Mold"
+  },
+  {
+   "default": "0",
+   "description": "All Loose Parts of Mold tightened fully",
+   "fieldname": "loose_parts_check",
+   "fieldtype": "Check"
+  },
+  {
+   "fieldname": "column_break_makt",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "mold_load_start_time",
+   "fieldtype": "Datetime",
+   "hidden": 1,
+   "label": "Mold Load Start Time"
+  },
+  {
+   "fieldname": "mold_load_complete_time",
+   "fieldtype": "Datetime",
+   "label": "Mold Load Complete Time"
+  },
+  {
+   "fieldname": "section_break_vlaq",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_soyv",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "checked_by",
+   "fieldtype": "Link",
+   "label": "Checked By",
+   "options": "User"
+  },
+  {
+   "fetch_from": "checked_by.full_name",
+   "fieldname": "checked_by_name",
+   "fieldtype": "Data",
+   "label": "Checked By Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_wlis",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "approved_by",
+   "fieldtype": "Link",
+   "label": "Approved By",
+   "options": "User"
+  },
+  {
+   "fetch_from": "approved_by.full_name",
+   "fieldname": "approved_by_name",
+   "fieldtype": "Data",
+   "label": "Approved By Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_hena",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "quality_inspector",
+   "fieldtype": "Link",
+   "label": "Quality Inspector",
+   "options": "User"
+  },
+  {
+   "depends_on": "eval:doc.quality_inspector",
+   "fetch_from": "quality_inspector.full_name",
+   "fieldname": "quality_inspector_name",
+   "fieldtype": "Data",
+   "label": "Quality Inspector Name"
+  },
+  {
+   "fieldname": "process_check_tab",
+   "fieldtype": "Tab Break",
+   "label": "Process Check"
+  },
+  {
+   "default": "0",
+   "description": "Are all Counter Check the mold accessories fitted Properly",
+   "fieldname": "fit_check",
+   "fieldtype": "Check"
+  },
+  {
+   "default": "0",
+   "description": "Shall there not be any loose parts",
+   "fieldname": "loose_parts",
+   "fieldtype": "Check"
+  },
+  {
+   "default": "0",
+   "description": "Are before Starting the Machine cooling & Airline checked",
+   "fieldname": "cooling_airline_check",
+   "fieldtype": "Check"
+  },
+  {
+   "default": "0",
+   "description": "Are Resin it should be fully dried and checked",
+   "fieldname": "dry_resin",
+   "fieldtype": "Check"
+  },
+  {
+   "default": "0",
+   "description": "Are masterbatch color mixed properly for color product production as per required dosing %",
+   "fieldname": "color_mixing",
+   "fieldtype": "Check"
+  },
+  {
+   "default": "0",
+   "description": "Is conveyor & packing table fully cleaned and free from dust or any contamination",
+   "fieldname": "packing_table",
+   "fieldtype": "Check"
+  },
+  {
+   "default": "0",
+   "description": "Shall all previous packing material/accessories be shifted from the packing place",
+   "fieldname": "packing_place",
+   "fieldtype": "Check"
+  },
+  {
+   "default": "0",
+   "description": "Is previous product Shifted from Production & packing place to RG/S.F.G or secondary operations",
+   "fieldname": "previous_product",
+   "fieldtype": "Check"
+  },
+  {
+   "default": "0",
+   "description": "Is next-product packing material placed in packing place",
+   "fieldname": "next_product",
+   "fieldtype": "Check"
+  },
+  {
+   "fieldname": "quality_check_tab",
+   "fieldtype": "Tab Break",
+   "label": "Quality Check"
+  },
+  {
+   "default": "0",
+   "description": "Is the line has been cleared for production and there is no any extraneous matter like maintenance tool, grease, cloth, and any other in the Iine\n<br>\nIs Proper housekeeping done before the startup of machine. And product appearance as per our product quality",
+   "fieldname": "line_clearance",
+   "fieldtype": "Check"
+  },
+  {
+   "default": "0",
+   "description": "Is product running without any defect",
+   "fieldname": "any_defect",
+   "fieldtype": "Check"
+  },
+  {
+   "default": "0",
+   "description": "Is running product have any customer complaints during last run",
+   "fieldname": "customer_complaint",
+   "fieldtype": "Check"
+  },
+  {
+   "default": "0",
+   "description": "Are all dimensions, label code & weight of product as per our specification",
+   "fieldname": "as_per_specification",
+   "fieldtype": "Check"
+  },
+  {
+   "default": "0",
+   "description": "Any extra precaution for this product run",
+   "fieldname": "precaution",
+   "fieldtype": "Check"
+  },
+  {
+   "default": "0",
+   "description": "It is packed as per specification",
+   "fieldname": "packing_as_per_specification",
+   "fieldtype": "Check"
+  },
+  {
+   "default": "0",
+   "description": "Are all workers trained for packing of product",
+   "fieldname": "trained_workers",
+   "fieldtype": "Check"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Line Clearance",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-06-08 13:53:35.785796",
+ "modified_by": "Administrator",
+ "module": "Excel Plastic",
+ "name": "Line Clearance",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "new_mold"
+}

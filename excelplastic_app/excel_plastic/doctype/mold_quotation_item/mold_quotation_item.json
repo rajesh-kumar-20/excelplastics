@@ -1,0 +1,85 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-03-25 08:30:25.199196",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "description",
+  "moq",
+  "uom",
+  "mold_cost",
+  "price__unit",
+  "remarks"
+ ],
+ "fields": [
+  {
+   "bold": 1,
+   "columns": 3,
+   "fieldname": "description",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Description"
+  },
+  {
+   "bold": 1,
+   "columns": 1,
+   "fieldname": "moq",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "MOQ"
+  },
+  {
+   "bold": 1,
+   "columns": 1,
+   "fieldname": "uom",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "UOM",
+   "options": "UOM",
+   "reqd": 1
+  },
+  {
+   "bold": 1,
+   "columns": 1,
+   "fieldname": "mold_cost",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Mold Cost",
+   "options": "currency"
+  },
+  {
+   "bold": 1,
+   "columns": 2,
+   "fieldname": "price__unit",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Price / Unit",
+   "options": "currency"
+  },
+  {
+   "bold": 1,
+   "columns": 2,
+   "fieldname": "remarks",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Remarks"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-06-08 13:33:17.736272",
+ "modified_by": "Administrator",
+ "module": "Excel Plastic",
+ "name": "Mold Quotation Item",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

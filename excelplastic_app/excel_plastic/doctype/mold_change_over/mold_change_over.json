@@ -1,0 +1,531 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "naming_series:",
+ "creation": "2025-12-05 16:16:41.188257",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "details_tab",
+  "naming_series",
+  "workflow_state",
+  "mold_unloading_section",
+  "unloading_mold_name",
+  "unloading_mold",
+  "column_break_wxer",
+  "date",
+  "section_break_vxof",
+  "remarksif_any",
+  "mold_loading_section",
+  "item_code",
+  "loading_mold_name",
+  "customer_code",
+  "customer",
+  "column_break_jdep",
+  "change_date",
+  "job_card",
+  "work_order",
+  "operation",
+  "total_quantity",
+  "section_break_jyxb",
+  "machine_name",
+  "mold_no",
+  "column_break_kiaz",
+  "cavity_nos",
+  "weight",
+  "section_break_qkyc",
+  "material_grade",
+  "column_break_pafd",
+  "master_batch",
+  "column_break_wawa",
+  "color",
+  "loading_details_tab",
+  "operator",
+  "column_break_aygj",
+  "operator_name",
+  "section_break_jtcg",
+  "unloading_column",
+  "mold_unload_complete_time",
+  "mold_unload_start_time",
+  "loading_column",
+  "mold_load_start_time",
+  "mold_load_complete_time",
+  "section_break_tqzj",
+  "machine_started_time",
+  "total_cavity",
+  "running_cavity",
+  "column_break_jzjk",
+  "std_cycle_time",
+  "act_cycle_time",
+  "section_break_eksm",
+  "column_break_hvis",
+  "checked_by",
+  "checked_by_name",
+  "column_break_ikyj",
+  "approved_by",
+  "approved_by_name",
+  "section_break_rvtq",
+  "remarks",
+  "column_break_srfm",
+  "quality_tab",
+  "section_break_vtsz",
+  "column_break_vaij",
+  "observation",
+  "inspected_by",
+  "quality_inspecter_name",
+  "quality_approved",
+  "machine_running_status",
+  "line_clearance",
+  "first_piece_approval",
+  "amended_from",
+  "column_break_cadi",
+  "quality_remarks",
+  "quality_checked_three_full_shot",
+  "connections_tab"
+ ],
+ "fields": [
+  {
+   "fieldname": "details_tab",
+   "fieldtype": "Tab Break",
+   "label": "Details"
+  },
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "hidden": 1,
+   "label": "Naming Series"
+  },
+  {
+   "fieldname": "mold_unloading_section",
+   "fieldtype": "Section Break",
+   "label": "Mold Unloading"
+  },
+  {
+   "fieldname": "unloading_mold_name",
+   "fieldtype": "Link",
+   "label": "Unloading Mold Name",
+   "options": "Mold Master"
+  },
+  {
+   "fetch_from": "unloading_mold_name.description",
+   "fieldname": "unloading_mold",
+   "fieldtype": "Small Text",
+   "label": "Unloading Mold"
+  },
+  {
+   "fieldname": "column_break_wxer",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "section_break_vxof",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "remarksif_any",
+   "fieldtype": "Small Text",
+   "label": "Remarks(If any)"
+  },
+  {
+   "fieldname": "mold_loading_section",
+   "fieldtype": "Section Break",
+   "label": "Mold Loading"
+  },
+  {
+   "fieldname": "item_code",
+   "fieldtype": "Link",
+   "in_standard_filter": 1,
+   "label": "Item Code",
+   "options": "Item"
+  },
+  {
+   "columns": 3,
+   "fetch_from": "item_code.item_name",
+   "fieldname": "loading_mold_name",
+   "fieldtype": "Data",
+   "label": "Loading Mold Name"
+  },
+  {
+   "fieldname": "customer_code",
+   "fieldtype": "Link",
+   "label": "Customer Code",
+   "options": "Customer"
+  },
+  {
+   "fetch_from": "customer_code.customer_name",
+   "fieldname": "customer",
+   "fieldtype": "Data",
+   "label": "Customer"
+  },
+  {
+   "fieldname": "column_break_jdep",
+   "fieldtype": "Column Break"
+  },
+  {
+   "columns": 1,
+   "fieldname": "change_date",
+   "fieldtype": "Date",
+   "label": "Date"
+  },
+  {
+   "fieldname": "job_card",
+   "fieldtype": "Link",
+   "label": "Job Card",
+   "options": "Job Card",
+   "search_index": 1
+  },
+  {
+   "fieldname": "work_order",
+   "fieldtype": "Link",
+   "label": "Work Order",
+   "options": "Work Order",
+   "search_index": 1
+  },
+  {
+   "fieldname": "operation",
+   "fieldtype": "Link",
+   "label": "Operation",
+   "options": "Operation"
+  },
+  {
+   "fieldname": "total_quantity",
+   "fieldtype": "Float",
+   "label": "Total Quantity"
+  },
+  {
+   "fieldname": "section_break_jyxb",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "machine_name",
+   "fieldtype": "Link",
+   "label": "Machine Name",
+   "options": "Workstation"
+  },
+  {
+   "fieldname": "mold_no",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Mold No",
+   "options": "Mold Master"
+  },
+  {
+   "fieldname": "column_break_kiaz",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "cavity_nos",
+   "fieldtype": "Data",
+   "label": "Cavity No's"
+  },
+  {
+   "fieldname": "weight",
+   "fieldtype": "Float",
+   "label": "Weight"
+  },
+  {
+   "fieldname": "section_break_qkyc",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "material_grade",
+   "fieldtype": "Link",
+   "label": "Material Grade",
+   "options": "Item"
+  },
+  {
+   "fieldname": "column_break_pafd",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "master_batch",
+   "fieldtype": "Link",
+   "label": "Master Batch",
+   "options": "Item"
+  },
+  {
+   "fieldname": "column_break_wawa",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "color",
+   "fieldtype": "Percent",
+   "label": "Color%"
+  },
+  {
+   "fieldname": "loading_details_tab",
+   "fieldtype": "Tab Break",
+   "label": "Loading Details"
+  },
+  {
+   "fieldname": "operator",
+   "fieldtype": "Link",
+   "label": "Operator",
+   "options": "Employee"
+  },
+  {
+   "fieldname": "column_break_aygj",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "operator.employee_name",
+   "fieldname": "operator_name",
+   "fieldtype": "Data",
+   "label": "Operator Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_jtcg",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "unloading_column",
+   "fieldtype": "Column Break",
+   "label": "Unloading"
+  },
+  {
+   "fieldname": "mold_unload_complete_time",
+   "fieldtype": "Datetime",
+   "hidden": 1,
+   "label": "Mold Unload Complete Time"
+  },
+  {
+   "fieldname": "mold_unload_start_time",
+   "fieldtype": "Datetime",
+   "label": "Mold Unload Start Time"
+  },
+  {
+   "fieldname": "loading_column",
+   "fieldtype": "Column Break",
+   "label": "Loading"
+  },
+  {
+   "fieldname": "mold_load_start_time",
+   "fieldtype": "Datetime",
+   "hidden": 1,
+   "label": "Mold load Start Time"
+  },
+  {
+   "fieldname": "mold_load_complete_time",
+   "fieldtype": "Datetime",
+   "label": "Mold Load Complete Time"
+  },
+  {
+   "fieldname": "section_break_tqzj",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "machine_started_time",
+   "fieldtype": "Datetime",
+   "label": "Machine Started Time"
+  },
+  {
+   "fieldname": "total_cavity",
+   "fieldtype": "Data",
+   "label": "Total Cavity"
+  },
+  {
+   "fieldname": "running_cavity",
+   "fieldtype": "Data",
+   "label": "Running Cavity"
+  },
+  {
+   "fieldname": "column_break_jzjk",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "std_cycle_time",
+   "fieldtype": "Float",
+   "label": "Std Cycle Time"
+  },
+  {
+   "fieldname": "act_cycle_time",
+   "fieldtype": "Float",
+   "label": "Act Cycle Time"
+  },
+  {
+   "fieldname": "section_break_eksm",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_hvis",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "checked_by",
+   "fieldtype": "Link",
+   "label": "Checked By",
+   "options": "User"
+  },
+  {
+   "fetch_from": "checked_by.full_name",
+   "fieldname": "checked_by_name",
+   "fieldtype": "Data",
+   "label": "Checked By Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_ikyj",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "approved_by",
+   "fieldtype": "Link",
+   "label": "Approved By",
+   "options": "User"
+  },
+  {
+   "fetch_from": "approved_by.full_name",
+   "fieldname": "approved_by_name",
+   "fieldtype": "Data",
+   "label": "Approved By Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_rvtq",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks"
+  },
+  {
+   "fieldname": "column_break_srfm",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "quality_tab",
+   "fieldtype": "Tab Break",
+   "label": "Quality"
+  },
+  {
+   "fieldname": "section_break_vtsz",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_vaij",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "observation",
+   "fieldtype": "Small Text",
+   "label": "Observation"
+  },
+  {
+   "fieldname": "inspected_by",
+   "fieldtype": "Link",
+   "label": "Inspected By",
+   "options": "User"
+  },
+  {
+   "depends_on": "eval:doc.inspected_by",
+   "fetch_from": "inspected_by.full_name",
+   "fieldname": "quality_inspecter_name",
+   "fieldtype": "Data",
+   "label": "Quality Inspecter Name"
+  },
+  {
+   "fieldname": "quality_approved",
+   "fieldtype": "Select",
+   "label": "Quality Approved",
+   "options": "\nAccepted\nRejected"
+  },
+  {
+   "fieldname": "machine_running_status",
+   "fieldtype": "Select",
+   "label": "Machine Running Status",
+   "options": "\nOk\nNot Ok"
+  },
+  {
+   "default": "0",
+   "fieldname": "line_clearance",
+   "fieldtype": "Check",
+   "label": "Line Clearance"
+  },
+  {
+   "default": "0",
+   "fieldname": "first_piece_approval",
+   "fieldtype": "Check",
+   "label": "First Piece Approval"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Mold Change Over",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "column_break_cadi",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "quality_remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks"
+  },
+  {
+   "fieldname": "quality_checked_three_full_shot",
+   "fieldtype": "Small Text",
+   "label": "Quality Checked Three Full Shot"
+  },
+  {
+   "fieldname": "connections_tab",
+   "fieldtype": "Tab Break",
+   "label": "Connections",
+   "show_dashboard": 1
+  },
+  {
+   "fieldname": "workflow_state",
+   "fieldtype": "Link",
+   "label": "Workflow State",
+   "options": "Workflow State"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [
+  {
+   "link_doctype": "Line Clearance",
+   "link_fieldname": "mold_change_over"
+  }
+ ],
+ "modified": "2026-06-08 13:52:49.372293",
+ "modified_by": "Administrator",
+ "module": "Excel Plastic",
+ "name": "Mold Change Over",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "loading_mold_name"
+}

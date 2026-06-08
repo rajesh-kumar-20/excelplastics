@@ -1,0 +1,253 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "format:EXL{process_no}{design_no}",
+ "creation": "2025-04-24 10:12:44.981616",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "naming_series",
+  "customer_id",
+  "customer_name",
+  "mold_size",
+  "process_name",
+  "process_no",
+  "no_of_mold",
+  "value",
+  "description",
+  "column_break_oeza",
+  "status",
+  "company",
+  "ownership_id",
+  "ownership",
+  "design_no",
+  "no_of_cavity",
+  "location",
+  "rack_no",
+  "remarks",
+  "amended_from",
+  "specification_tab",
+  "quality_inspection_template",
+  "item_quality_inspection_parameter",
+  "connections_tab",
+  "linked_item_count"
+ ],
+ "fields": [
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "hidden": 1,
+   "label": "Series",
+   "print_hide": 1
+  },
+  {
+   "fieldname": "customer_id",
+   "fieldtype": "Link",
+   "in_standard_filter": 1,
+   "label": "Customer ID",
+   "options": "Customer",
+   "reqd": 1
+  },
+  {
+   "depends_on": "eval:doc.customer_id",
+   "fetch_from": "customer_id.customer_name",
+   "fieldname": "customer_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Customer Name"
+  },
+  {
+   "fieldname": "mold_size",
+   "fieldtype": "Data",
+   "label": "Mold Size"
+  },
+  {
+   "fieldname": "process_name",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Process Name",
+   "options": "Operation",
+   "reqd": 1
+  },
+  {
+   "depends_on": "eval:doc.process_name",
+   "fetch_from": "process_name.custom_process_no",
+   "fieldname": "process_no",
+   "fieldtype": "Data",
+   "in_standard_filter": 1,
+   "label": "Process No"
+  },
+  {
+   "fieldname": "no_of_mold",
+   "fieldtype": "Int",
+   "label": "No of Mold"
+  },
+  {
+   "fieldname": "value",
+   "fieldtype": "Currency",
+   "label": "Value"
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Small Text",
+   "in_standard_filter": 1,
+   "label": "Description"
+  },
+  {
+   "fieldname": "column_break_oeza",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Available\nMaintenance\nProduction"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company"
+  },
+  {
+   "fieldname": "ownership_id",
+   "fieldtype": "Link",
+   "label": "Ownership ID",
+   "options": "Customer"
+  },
+  {
+   "depends_on": "eval:doc.ownership_id",
+   "fetch_from": "ownership_id.customer_name",
+   "fieldname": "ownership",
+   "fieldtype": "Data",
+   "label": "Ownership"
+  },
+  {
+   "description": "(Enter in 4 digit)",
+   "fieldname": "design_no",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Design No",
+   "length": 4
+  },
+  {
+   "fieldname": "no_of_cavity",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "No of Cavity",
+   "reqd": 1
+  },
+  {
+   "fieldname": "location",
+   "fieldtype": "Link",
+   "label": "Location",
+   "options": "Company"
+  },
+  {
+   "fieldname": "rack_no",
+   "fieldtype": "Data",
+   "label": "Rack No"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Mold Master",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "specification_tab",
+   "fieldtype": "Tab Break",
+   "label": "Specification"
+  },
+  {
+   "fieldname": "quality_inspection_template",
+   "fieldtype": "Link",
+   "label": "Quality Inspection Template",
+   "options": "Quality Inspection Template"
+  },
+  {
+   "depends_on": "eval:doc.quality_inspection_template",
+   "fieldname": "item_quality_inspection_parameter",
+   "fieldtype": "Table",
+   "label": "Item Quality Inspection Parameter",
+   "mandatory_depends_on": "eval:doc.quality_inspection_template",
+   "options": "Item Quality Inspection Parameter"
+  },
+  {
+   "fieldname": "connections_tab",
+   "fieldtype": "Tab Break",
+   "label": "Connections",
+   "show_dashboard": 1
+  },
+  {
+   "fieldname": "linked_item_count",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Linked Item",
+   "read_only": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [
+  {
+   "link_doctype": "Item",
+   "link_fieldname": "mold_id"
+  },
+  {
+   "link_doctype": "BOM",
+   "link_fieldname": "custom_mold"
+  },
+  {
+   "link_doctype": "Workstation",
+   "link_fieldname": "custom_mold_id"
+  }
+ ],
+ "modified": "2026-06-08 13:37:17.225463",
+ "modified_by": "Administrator",
+ "module": "Excel Plastic",
+ "name": "Mold Master",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "search_fields": "design_no,description",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [
+  {
+   "color": "Blue",
+   "title": "Maintenance"
+  },
+  {
+   "color": "Orange",
+   "title": "Production"
+  }
+ ],
+ "title_field": "description",
+ "track_changes": 1
+}
