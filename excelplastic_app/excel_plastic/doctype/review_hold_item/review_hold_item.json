@@ -1,0 +1,214 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "naming_series:",
+ "creation": "2026-04-29 14:43:47.769503",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "section_break_mbr4",
+  "naming_series",
+  "item",
+  "item_name",
+  "work_order",
+  "job_card",
+  "column_break_eyyh",
+  "amended_from",
+  "date",
+  "reference_type",
+  "reference_name",
+  "section_break_kytf",
+  "column_break_hmkz",
+  "hold_qty",
+  "column_break_npdz",
+  "accepted_qty",
+  "rejected_qty",
+  "rework_possible",
+  "configuration_tab",
+  "source_warehouse",
+  "column_break_yuqn",
+  "accepted_warehouse",
+  "rejected_warehouse",
+  "rework_warehouse",
+  "connections_tab"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_break_mbr4",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Review Hold Item",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "section_break_kytf",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "item",
+   "fieldtype": "Link",
+   "label": "Item",
+   "options": "Item"
+  },
+  {
+   "fetch_from": "item.item_name",
+   "fieldname": "item_name",
+   "fieldtype": "Data",
+   "label": "Item Name"
+  },
+  {
+   "fieldname": "column_break_npdz",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "hold_qty",
+   "fieldtype": "Float",
+   "label": "Hold Qty"
+  },
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "hidden": 1,
+   "label": "Naming Series",
+   "print_hide": 1,
+   "report_hide": 1
+  },
+  {
+   "fieldname": "column_break_eyyh",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "reference_type",
+   "fieldtype": "Select",
+   "label": "Reference Type",
+   "options": "\nStock Entry\nQuality Inspection"
+  },
+  {
+   "fieldname": "column_break_hmkz",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "reference_name",
+   "fieldtype": "Dynamic Link",
+   "label": "Reference Name",
+   "options": "reference_type"
+  },
+  {
+   "fieldname": "accepted_qty",
+   "fieldtype": "Float",
+   "label": "Accepted Qty"
+  },
+  {
+   "fieldname": "rejected_qty",
+   "fieldtype": "Float",
+   "label": "Rejected Qty"
+  },
+  {
+   "fieldname": "configuration_tab",
+   "fieldtype": "Tab Break",
+   "label": "Configuration"
+  },
+  {
+   "fieldname": "source_warehouse",
+   "fieldtype": "Link",
+   "label": "Source Warehouse",
+   "options": "Warehouse"
+  },
+  {
+   "fieldname": "column_break_yuqn",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "accepted_warehouse",
+   "fieldtype": "Link",
+   "label": "Accepted Warehouse",
+   "options": "Warehouse"
+  },
+  {
+   "fieldname": "rejected_warehouse",
+   "fieldtype": "Link",
+   "label": "Rejected Warehouse",
+   "options": "Warehouse"
+  },
+  {
+   "fieldname": "date",
+   "fieldtype": "Date",
+   "label": "Date"
+  },
+  {
+   "fieldname": "work_order",
+   "fieldtype": "Link",
+   "label": "Work Order",
+   "link_filters": "[[\"Work Order\",\"production_item\",\"=\",\"eval: doc.item\"]]",
+   "options": "Work Order",
+   "search_index": 1
+  },
+  {
+   "fieldname": "connections_tab",
+   "fieldtype": "Tab Break",
+   "label": "Connections",
+   "show_dashboard": 1
+  },
+  {
+   "fieldname": "job_card",
+   "fieldtype": "Link",
+   "label": "Job Card",
+   "link_filters": "[[\"Job Card\",\"work_order\",\"=\",\"eval: doc.work_order\"]]",
+   "options": "Job Card"
+  },
+  {
+   "default": "0",
+   "fieldname": "rework_possible",
+   "fieldtype": "Check",
+   "label": "Rework Possible?"
+  },
+  {
+   "fieldname": "rework_warehouse",
+   "fieldtype": "Link",
+   "label": "Rework Warehouse",
+   "options": "Warehouse"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [
+  {
+   "link_doctype": "Stock Entry",
+   "link_fieldname": "custom_review_hold_items"
+  }
+ ],
+ "modified": "2026-05-07 15:18:01.710168",
+ "modified_by": "Administrator",
+ "module": "Excel Plastic",
+ "name": "Review Hold Item",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
