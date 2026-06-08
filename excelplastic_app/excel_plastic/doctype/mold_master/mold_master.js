@@ -11,10 +11,7 @@ frappe.ui.form.on('Mold Master', {
                 }
             };
         });
-    }
-});
-
-frappe.ui.form.on('Mold Master', {
+    },
   quality_inspection_template: function(frm) {
     const template_name = frm.doc.quality_inspection_template;
 
@@ -48,13 +45,8 @@ frappe.ui.form.on('Mold Master', {
         frappe.msgprint("No filled parameters found in the selected Template.");
       }
     });
-  }
-});
+  },
 
-
-
-
-frappe.ui.form.on('Mold Master', {
   validate(frm) {
     let invalid = false;
 
