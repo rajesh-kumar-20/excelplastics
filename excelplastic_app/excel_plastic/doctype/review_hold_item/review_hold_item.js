@@ -1,8 +1,8 @@
 // Copyright (c) 2026, Rajesh Kumar and contributors
 // For license information, please see license.txt
 
-frappe.ui.form.on("Review Hold Item", {
-	refresh(frm) {
+// frappe.ui.form.on("Review Hold Item", {
+// 	refresh(frm) {
 
-	},
-});
+// 	},
+// });
