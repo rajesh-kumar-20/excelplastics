@@ -2,7 +2,6 @@
 // For license information, please see license.txt
 
 frappe.ui.form.on('Mold Quotation', {
-
     setup(frm) {
         // 🔹 Filter addresses by selected company
         frm.set_query("company_address", function() {
@@ -14,7 +13,6 @@ frappe.ui.form.on('Mold Quotation', {
             };
         });
     },
-
     company(frm) {
         // 🔥 Clear fields if company removed
         if (!frm.doc.company) {
@@ -22,7 +20,6 @@ frappe.ui.form.on('Mold Quotation', {
             frm.set_value("company_address_display", "");
             return;
         }
-
         // 🔹 Get default company address
         frappe.call({
             method: "frappe.contacts.doctype.address.address.get_default_address",
@@ -37,14 +34,12 @@ frappe.ui.form.on('Mold Quotation', {
             }
         });
     },
-
     company_address(frm) {
         // 🔹 Render address display
         if (!frm.doc.company_address) {
             frm.set_value("company_address_display", "");
             return;
         }
-
         frappe.call({
             method: "frappe.contacts.doctype.address.address.get_address_display",
             args: {
@@ -63,10 +58,8 @@ frappe.ui.form.on('Mold Quotation', {
         if (frm.doc.company_address) {
             frm.trigger("company_address");
         }
-    }
-});
-
-frappe.ui.form.on('Mold Quotation', {
+    },
+    
     currency: function(frm) {
         // Loop through child table
         (frm.doc.items || []).forEach(function(row) {
