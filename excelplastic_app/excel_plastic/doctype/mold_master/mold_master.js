@@ -21,7 +21,6 @@ frappe.ui.form.on('Mold Master', {
       frm.refresh_field("item_quality_inspection_parameter");
       return;
     }
-
     frappe.model.with_doc("Quality Inspection Template", template_name).then(() => {
       const template = frappe.get_doc("Quality Inspection Template", template_name);
       const params = template.item_quality_inspection_parameter || [];
