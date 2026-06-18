@@ -33,17 +33,7 @@ frappe.ui.form.on('Quality Inspection', {
     }
 });
 
-// frappe.ui.form.on('Quality Inspection', {
-//     custom_running_cavity(frm) {
-//         if (!frm.doc.custom_running_cavity) {
-//             frm.set_value('sample_size', 0);
-//             return;
-//         }
 
-//         let cavity = flt(frm.doc.custom_running_cavity);
-//         frm.set_value('sample_size', cavity * 3);
-//     }
-// });
 frappe.ui.form.on('Quality Inspection', {
     custom_workstation: function (frm) {
         calculate_sample_size(frm);
@@ -145,101 +135,6 @@ frappe.ui.form.on('Quality Inspection Reading', {
 });
 
 
-
-
-
-// frappe.ui.form.on("Quality Inspection", {
-//     item_code(frm) {
-//         if (!frm.doc.item_code) return;
-
-//         frappe.call({
-//             method: "frappe.client.get",
-//             args: {
-//                 doctype: "Item",
-//                 name: frm.doc.item_code
-//             },
-//             callback: function (res) {
-//                 let item = res.message;
-//                 if (item && item.item_quality_inspection_parameter) {
-//                     let params = item.item_quality_inspection_parameter;
-
-//                     frm.clear_table("readings");
-
-//                     params.forEach(param => {
-//                         frm.add_child("readings", {
-//                             specification: param.specification,
-//                             acceptable_criteria: param.acceptable_criteria,
-//                             min_value:param.min_value,
-//                             max_value:param.max_value,
-//                             value: param.value || "",
-//                             formula_based_criteria:param.formula_based_criteria,
-//                             acceptance_formula:param.acceptance_formula,
-//                             numeric:param.numeric
-                            
-//                         });
-//                     });
-
-//                     frm.refresh_field("readings");
-//                 }
-//             }
-//         });
-//     }
-// });
-
-
-
-
-// frappe.ui.form.on("Quality Inspection", {
-//     refresh(frm) {
-//         console.log("refresh:", frm.doc.item_code);
-//         if (frm.doc.item_code) {
-//             setTimeout(() => populate_readings_from_item(frm), 300);
-//         }
-//     }
-// });
-// function populate_readings_from_item(frm) {
-//     if (!frm.doc.item_code) {
-//         console.log("No item_code found");
-//         return;
-//     }
-
-//     frappe.call({
-//         method: "frappe.client.get",
-//         args: {
-//             doctype: "Item",
-//             name: frm.doc.item_code
-//         },
-//         callback: function (res) {
-//             let item = res.message;
-//             console.log(" Got item:", item);
-
-//             if (item && Array.isArray(item.item_quality_inspection_parameter)) {
-//                 frm.clear_table("readings");
-
-//                 item.item_quality_inspection_parameter.forEach(param => {
-//                     console.log("Adding param:", param.specification);
-//                     frm.add_child("readings", {
-//                         specification: param.specification,
-//                         acceptable_criteria: param.acceptable_criteria,
-//                         min_value: param.min_value,
-//                         max_value: param.max_value,
-//                         value: param.value || "",
-//                         formula_based_criteria: param.formula_based_criteria,
-//                         acceptance_formula: param.acceptance_formula,
-//                         numeric: param.numeric
-//                     });
-//                 });
-
-//                 frm.refresh_field("readings");
-//                 console.log("Done: readings table updated");
-//             } 
-//         }
-//     });
-// }
-
-
-
-
 frappe.ui.form.on("Quality Inspection", {
     refresh(frm) {
         console.log("refresh:", frm.doc.item_code);
@@ -296,54 +191,3 @@ function populate_readings_from_item(frm) {
     });
 }
 
-
-// frappe.ui.form.on("Quality Inspection", {
-//   refresh(frm) {
-//     console.log("refresh:", frm.doc.item_code);
-
-//     if (frm.doc.item_code && frm.doc.readings.length === 0) {
-//       populate_readings_from_item(frm);
-//     }
-//   },
-
-//   item_code(frm) {
-//     console.log("item_code changed:", frm.doc.item_code);
-
-//     if (frm.doc.item_code && frm.doc.readings.length === 0) {
-//       populate_readings_from_item(frm);
-//     }
-//   }
-// });
-
-// function populate_readings_from_item(frm) {
-//   console.log(">> Running populate_readings_from_item for", frm.doc.item_code);
-
-//   frappe.model.with_doc("Item", frm.doc.item_code, function () {
-//     let item_doc = frappe.model.get_doc("Item", frm.doc.item_code);
-//     console.log("Got full Item doc:", item_doc);
-
-//     if (item_doc.item_quality_inspection_parameter?.length) {
-//       frm.clear_table("readings");
-
-//       item_doc.item_quality_inspection_parameter.forEach(param => {
-//         console.log("Adding param:", param.specification);
-
-//         frm.add_child("readings", {
-//           specification: param.specification,
-//           acceptable_criteria: param.acceptable_criteria,
-//           min_value: param.min_value,
-//           max_value: param.max_value,
-//           value: param.value || "",
-//           formula_based_criteria: param.formula_based_criteria,
-//           acceptance_formula: param.acceptance_formula,
-//           numeric: param.numeric
-//         });
-//       });
-
-//       frm.refresh_field("readings");
-//       console.log("✔️ Readings table updated");
-//     } else {
-//       console.warn("No quality parameters found on item");
-//     }
-//   });
-// }

@@ -1,7 +1,4 @@
-
-
 //auto populate mold details
-
 frappe.ui.form.on('BOM', {
     item: function(frm) {
         if (!frm.doc.item) return;
@@ -36,13 +33,7 @@ frappe.ui.form.on('BOM', {
                 frm.set_value('custom_mold', '');
             }
         });
-    }
-});
-
-
-// Trigger when loading_value is changed in BOM Item row
-
-frappe.ui.form.on('BOM Item', {
+    },
     loading_value: function (frm, cdt, cdn) {
         let row = locals[cdt][cdn];
 
@@ -98,13 +89,13 @@ frappe.ui.form.on('BOM Item', {
                 });
             });
         });
-    }
-});
+    },
+
 // Block saving the BOM if:
 // - Total loading > 100%
 // - OR Finished Item lacks valid 'Weight'
 
-frappe.ui.form.on('BOM', {
+
     validate: function(frm) {
 
         return frappe.call({
@@ -138,13 +129,8 @@ frappe.ui.form.on('BOM', {
                 }
             });
         });
-    }
-});
-
-
+    },
 //auto populate operation details and cavity details from mold master
-
-frappe.ui.form.on('BOM', {
     custom_mold: function(frm) {
         if (!frm.doc.custom_mold) return;
 
@@ -188,6 +174,22 @@ frappe.ui.form.on('BOM', {
                 }
             }
         });
+    },
+    custom_mold:function(frm) {
+      frappe.db.get_value('Mold Master', frm.doc.custom_mold, 'customer_id', (res) => {
+      const customer = res.customer_id || null;
+      frm.set_value('custom_customer', customer);
+    });
+  },
+  custom_default_source_warehouse: function(frm) {
+
+        if (!frm.doc.custom_default_source_warehouse) return;
+
+        frm.doc.items.forEach(function(row) {
+            row.source_warehouse = frm.doc.custom_default_source_warehouse;
+        });
+
+        frm.refresh_field('items');
     }
 });
 
@@ -200,34 +202,6 @@ frappe.ui.form.on('BOM Operation', {
         frm.refresh_field('operations');
     }
 });
-
-frappe.ui.form.on('BOM', {
-  custom_mold:function(frm) {
-    
-
-    frappe.db.get_value('Mold Master', frm.doc.custom_mold, 'customer_id', (res) => {
-      const customer = res.customer_id || null;
-      frm.set_value('custom_customer', customer);
-    });
-  }
-});
-
-
-frappe.ui.form.on('BOM', {
-
-    custom_default_source_warehouse: function(frm) {
-
-        if (!frm.doc.custom_default_source_warehouse) return;
-
-        frm.doc.items.forEach(function(row) {
-            row.source_warehouse = frm.doc.custom_default_source_warehouse;
-        });
-
-        frm.refresh_field('items');
-    }
-
-});
-
 
 // Also apply when adding new row
 frappe.ui.form.on('BOM Item', {
