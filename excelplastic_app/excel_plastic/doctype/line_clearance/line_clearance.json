@@ -24,6 +24,8 @@
   "offloading_start_time",
   "offloading_complete_time",
   "next_mold_section",
+  "item",
+  "new_mold_id",
   "new_mold",
   "loose_parts_check",
   "column_break_makt",
@@ -137,8 +139,9 @@
   {
    "description": "Name of Mold Which is Off loaded/Label changing",
    "fieldname": "previous_mold",
-   "fieldtype": "Data",
-   "label": "Previous Mold"
+   "fieldtype": "Link",
+   "label": "Previous Mold",
+   "options": "Mold Master"
   },
   {
    "default": "0",
@@ -168,6 +171,7 @@
   },
   {
    "description": "Name of Mold Which is to be next loaded/Label changing",
+   "fetch_from": "item.item_name",
    "fieldname": "new_mold",
    "fieldtype": "Data",
    "label": "New Mold"
@@ -363,13 +367,27 @@
    "print_hide": 1,
    "read_only": 1,
    "search_index": 1
+  },
+  {
+   "fieldname": "item",
+   "fieldtype": "Link",
+   "in_standard_filter": 1,
+   "label": "Item",
+   "options": "Item"
+  },
+  {
+   "fieldname": "new_mold_id",
+   "fieldtype": "Link",
+   "in_standard_filter": 1,
+   "label": "New Mold ID",
+   "options": "Mold Master"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-06-08 13:53:35.785796",
+ "modified": "2026-07-02 13:10:33.663951",
  "modified_by": "Administrator",
  "module": "Excel Plastic",
  "name": "Line Clearance",

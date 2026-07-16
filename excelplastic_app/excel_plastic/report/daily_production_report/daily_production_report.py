@@ -12,7 +12,7 @@ def get_columns():
     return [
         {"label": "Machine", "fieldname": "machine", "fieldtype": "Link", "options": "Workstation", "width": 150},
         {"label": "Item Name", "fieldname": "item_name", "fieldtype": "Data", "width": 300},
-
+        {"label": "Mold ID", "fieldname": "mold_id", "fieldtype": "Link","options": "Mold Master","width":100},
         {"label": "Cavity", "fieldname": "cavity", "fieldtype": "Int", "width": 100},
         {"label": "Running Cavities", "fieldname": "running_cavities", "fieldtype": "Int", "width": 140},
         {"label": "Cycle Time (Sec)", "fieldname": "cycle_time", "fieldtype": "Float", "width": 120},
@@ -43,6 +43,7 @@ def get_data(filters):
         SELECT
             jc.workstation AS machine,
             jc.item_name,
+            jc.custom_mold AS mold_id,
             MAX(jc.custom_cavity) AS cavity,
             MAX(jc.custom_running_cavity) AS running_cavities,
 			jc.custom_weight_per_unit AS weight,

@@ -6,8 +6,7 @@ import frappe
 from frappe.model.document import Document
 
 class ReviewHoldItem(Document):
-
-    def on_submit(self):
+	def on_submit(self):
 		total_split_qty = (
 			float(doc.accepted_qty or 0) +
 			float(doc.rejected_qty or 0)

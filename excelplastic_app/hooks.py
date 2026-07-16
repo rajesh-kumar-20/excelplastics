@@ -52,13 +52,15 @@ app_license = "mit"
 # doctype_js={"Purchase Invoice":"public/js/purchase_invoice.js"}
 # doctype_js={"Work Order":"public/js/work_order.js"}
 # doctype_js={"Quotation":"public/js/quotation.js"}
-doctype_js={"Workstation":"public/js/workstation.js"}
-doctype_js={"Quality Inspection":"public/js/quality_inspection.js"}
+# doctype_js={"Workstation":"public/js/workstation.js"}
+# doctype_js={"Quality Inspection":"public/js/quality_inspection.js"}
 # doctype_js={"Item":"public/js/item.js"}
-doctype_js={"Prospect":"public/js/prospect.js"}
+# doctype_js={"Prospect":"public/js/prospect.js"}
 # doctype_js={"Job Card":"public/js/jobcard.js"}
 
-
+doctype_list_js = {
+    "Sales Order": "public/js/sales_order_list.js"
+}
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
 # doctype_calendar_js = {"doctype" : "public/js/doctype_calendar.js"}

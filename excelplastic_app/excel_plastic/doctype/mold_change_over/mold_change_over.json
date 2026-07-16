@@ -205,6 +205,8 @@
   {
    "fieldname": "machine_name",
    "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Machine Name",
    "options": "Workstation"
   },
@@ -502,7 +504,7 @@
    "link_fieldname": "mold_change_over"
   }
  ],
- "modified": "2026-06-08 13:52:49.372293",
+ "modified": "2026-07-09 16:28:13.084067",
  "modified_by": "Administrator",
  "module": "Excel Plastic",
  "name": "Mold Change Over",
