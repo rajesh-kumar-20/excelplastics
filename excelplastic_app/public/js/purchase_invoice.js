@@ -31,7 +31,7 @@ function get_purchase_items(frm) {
         }
     ], (filters) => {
         frappe.call({
-            method: 'get_purchase_orders_by_item',
+            method: 'excelplastic_app.api.get_purchase_orders_by_item',
             args: filters,
             callback: function (r) {
                 show_items_dialog(frm, r.message, 'Purchase Order');

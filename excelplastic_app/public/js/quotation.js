@@ -30,7 +30,7 @@ frappe.ui.form.on("Quotation", {
         if (!frm.is_new() && frm.doc.docstatus === 1 && frm.doc.status !== "Ordered") {
             
             frappe.call({
-                method: "has_proforma_invoice",
+                method: "excelplastic_app.api.has_proforma_invoice",
                 args: { quotation_name: frm.doc.name },
                 callback(r) {
                     if (!r.message) {

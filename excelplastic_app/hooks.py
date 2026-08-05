@@ -45,18 +45,26 @@ app_license = "mit"
 # include js in doctype views
 # doctype_js = {"doctype" : "public/js/doctype.js"}
 
-# doctype_js={"Delivery Note":"public/js/delivery_note.js"}
-doctype_js={"Sales Invoice":"public/js/sales_invoice.js"}
-# doctype_js={"BOM":"public/js/bom.js"}
-doctype_js={"Sales Order":"public/js/sales_order.js"}
-# doctype_js={"Purchase Invoice":"public/js/purchase_invoice.js"}
-# doctype_js={"Work Order":"public/js/work_order.js"}
-# doctype_js={"Quotation":"public/js/quotation.js"}
-doctype_js={"Workstation":"public/js/workstation.js"}
-# doctype_js={"Quality Inspection":"public/js/quality_inspection.js"}
-# doctype_js={"Item":"public/js/item.js"}
-doctype_js={"Prospect":"public/js/prospect.js"}
+
+# doctype_js={}
+# doctype_js={}
+# doctype_js={}
+# doctype_js={}
 # doctype_js={"Job Card":"public/js/jobcard.js"}
+doctype_js={
+    "Prospect":"public/js/prospect.js",
+    "Workstation":"public/js/workstation.js",
+    "Sales Order":"public/js/sales_order.js",
+    "Sales Invoice":"public/js/sales_invoice.js",
+    "Item":"public/js/item.js",
+    "Delivery Note":"public/js/delivery_note.js",
+    "Quotation":"public/js/quotation.js",
+    "BOM":"public/js/bom.js",
+    "Purchase Invoice":"public/js/purchase_invoice.js",
+    "Quality Inspection":"public/js/quality_inspection.js",
+    "Work Order":"public/js/work_order.js"
+    }
+
 
 doctype_list_js = {
     "Sales Order": "public/js/sales_order_list.js"

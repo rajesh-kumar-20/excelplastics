@@ -9,7 +9,6 @@ frappe.ui.form.on('Delivery Note', {
                 get_item_for_delivery_note(frm);
             }, 'Get Items From');
         }
-
         function get_item_for_delivery_note(frm) {
             frappe.prompt([
                 {
@@ -29,9 +28,11 @@ frappe.ui.form.on('Delivery Note', {
                 }
             ], (filters) => {
                 frappe.call({
-                    method: 'get_item_for_delivery_note',
+                    method: 'excelplastic_app.api.get_item_for_delivery_note',
                     args: filters,
                     callback: function (r) {
+                        console.log("===== RESPONSE FROM SERVER =====");
+                        console.log(r.message);
                         show_items_dialog(frm, r.message, 'Sales Order');
                     }
                 });
@@ -57,7 +58,6 @@ frappe.ui.form.on('Delivery Note', {
                     }
                 </style>
             `;
-
             let table_html = styleTag + `<div style="max-height: 400px; overflow-y: auto;"><table class="table table-bordered">
                 <thead>
                     <tr>
@@ -70,7 +70,6 @@ frappe.ui.form.on('Delivery Note', {
                         <th>Allocated Qty</th>
                     </tr>
                 </thead><tbody>`;
-
             data.forEach(order => {
                 (order.items || []).forEach(item => {
                     table_html += `<tr>
@@ -109,7 +108,6 @@ frappe.ui.form.on('Delivery Note', {
                         const item_data = JSON.parse(input.attr('data-item'));
 
                         const allocated_qty = parseFloat(input.val()) || item_data.qty;
-
                         selected_items.push({
                             item_code: item_data.item_code,
                             qty: allocated_qty,
@@ -124,14 +122,21 @@ frappe.ui.form.on('Delivery Note', {
                     frm.refresh_field('items');
 
                     selected_items.forEach(item => {
+
                         const row = frm.add_child('items');
-                        frappe.model.set_value(row.doctype, row.name, 'item_code', item.item_code).then(() => {
-                            frm.script_manager.trigger("item_code", row.doctype, row.name);
-                            frappe.model.set_value(row.doctype, row.name, 'qty', item.qty);
-                            frappe.model.set_value(row.doctype, row.name, 'rate', item.rate);
-                            frappe.model.set_value(row.doctype, row.name, 'sales_order', item.sales_order);
-                            frappe.model.set_value(row.doctype, row.name, 'so_detail', item.so_detail);
-                            frappe.model.set_value(row.doctype, row.name, 'against_sales_order', item.sales_order);
+                        frappe.model.set_value(row.doctype,row.name,'item_code',item.item_code).then(() => {
+                            // Let ERPNext complete its own processing first
+                            frappe.model.set_value(row.doctype,row.name,'qty',item.qty);
+                            frappe.model.set_value(row.doctype,row.name,'sales_order',item.sales_order);
+                            frappe.model.set_value(row.doctype,row.name,'so_detail',item.so_detail);
+                            frappe.model.set_value(row.doctype,row.name,'against_sales_order',item.sales_order);
+                            // frappe.model.set_value(row.doctype,row.name,'rate',item.rate);
+                            // Restore SO values AFTER ERPNext finishes recalculating
+                            setTimeout(() => {
+                                frappe.model.set_value(row.doctype,row.name,'rate',item.rate);
+                                // frappe.model.set_value(row.doctype,row.name,'amount',flt(item.qty * item.rate, 5));
+                                frm.refresh_field('items');
+                            }, 800);   // you can try 500–1000 ms if needed
                         });
                     });
 
