@@ -176,13 +176,14 @@ override_doctype_class = {
 doc_events = {
     "Sales Order": {
         "before_update_after_submit": "excelplastic_app.events.sales_order.before_update_after_submit"
-    }
-}
-
-doc_events = {
+    },
     "Work Order": {
         "validate": "excelplastic_app.events.work_order.validate",
         "before_submit": "excelplastic_app.events.work_order.before_submit",
+    },
+    "Item": {
+        "validate": "excelplastic_app.events.item.validate",
+        "on_update": "excelplastic_app.events.item.on_update",
     }
 }
 # Scheduled Tasks
