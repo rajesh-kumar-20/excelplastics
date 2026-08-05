@@ -1,5 +1,6 @@
 {
  "actions": [],
+ "allow_import": 1,
  "allow_rename": 1,
  "autoname": "format:EXL{process_no}{design_no}",
  "creation": "2025-04-24 10:12:44.981616",
@@ -214,8 +215,8 @@
    "link_fieldname": "custom_mold_id"
   }
  ],
- "modified": "2026-06-08 13:37:17.225463",
- "modified_by": "Administrator",
+ "modified": "2026-08-04 12:59:09.611774",
+ "modified_by": "info@uxdstudio.com",
  "module": "Excel Plastic",
  "name": "Mold Master",
  "naming_rule": "Expression",

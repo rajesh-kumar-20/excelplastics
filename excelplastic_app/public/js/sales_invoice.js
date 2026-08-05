@@ -26,7 +26,7 @@ function get_items_from_sales_order(frm) {
         { fieldname: 'customer', label: 'Customer', fieldtype: 'Link', options: 'Customer', default: frm.doc.customer }
     ], (filters) => {
         frappe.call({
-            method: 'get_sales_orders_by_item',  // Make sure this is defined on server side
+            method: 'excelplastic_app.api.get_sales_orders_by_item',  // Make sure this is defined on server side
             args: filters,
             callback: function (r) {
                 show_sales_order_dialog(frm, r.message);
