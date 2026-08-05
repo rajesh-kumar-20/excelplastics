@@ -195,6 +195,10 @@ doc_events = {
         "on_update": "excelplastic_app.events.stock_entry.on_update",
         "on_trash": "excelplastic_app.events.stock_entry.on_trash",
     },
+    "Workstation": {
+        "validate": "excelplastic_app.events.workstation.validate",
+        "on_update": "excelplastic_app.events.workstation.on_update",
+    },
 }
 # Scheduled Tasks
 # ---------------
