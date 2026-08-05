@@ -173,7 +173,18 @@ override_doctype_class = {
 # 		"on_trash": "method"
 # 	}
 # }
+doc_events = {
+    "Sales Order": {
+        "before_update_after_submit": "excelplastic_app.events.sales_order.before_update_after_submit"
+    }
+}
 
+doc_events = {
+    "Work Order": {
+        "validate": "excelplastic_app.events.work_order.validate",
+        "before_submit": "excelplastic_app.events.work_order.before_submit",
+    }
+}
 # Scheduled Tasks
 # ---------------
 
