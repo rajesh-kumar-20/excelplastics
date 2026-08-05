@@ -184,7 +184,17 @@ doc_events = {
     "Item": {
         "validate": "excelplastic_app.events.item.validate",
         "on_update": "excelplastic_app.events.item.on_update",
-    }
+    },
+    "Quality Inspection": {
+        "before_insert": "excelplastic_app.events.quality_inspection.before_insert",
+        "before_submit": "excelplastic_app.events.quality_inspection.before_submit",
+        "on_submit": "excelplastic_app.events.quality_inspection.on_submit",
+    },
+    "Stock Entry": {
+        "validate": "excelplastic_app.events.stock_entry.validate",
+        "on_update": "excelplastic_app.events.stock_entry.on_update",
+        "on_trash": "excelplastic_app.events.stock_entry.on_trash",
+    },
 }
 # Scheduled Tasks
 # ---------------
