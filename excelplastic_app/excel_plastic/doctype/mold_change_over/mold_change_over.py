@@ -21,7 +21,11 @@ class MoldChangeOver(Document):
 
     def on_trash(self):
         self.restore_machine_mold()
+        self.delete_line_clearance()
+        self.delete_quality_inspections()
 
+    def on_cancel(self):
+        self.restore_machine_mold()
     # ---------------------------------------------------------------------
     # Validate
     # ---------------------------------------------------------------------
@@ -115,6 +119,7 @@ class MoldChangeOver(Document):
                     "inspection_type": "In Process",
                     "reference_type": "Job Card",
                     "reference_name": self.job_card,
+                    "custom_mold_change_over": self.name,
                     "custom_is_first_set": 1,
                     "custom_workstation": self.machine_name,
                     "item_code": self.item_code,
@@ -178,3 +183,38 @@ class MoldChangeOver(Document):
                 "custom_mold_id",
                 self.unloading_mold_name or "",
             )
+
+
+    def delete_line_clearance(self):
+        lc_name = frappe.db.get_value(
+            "Line Clearance",
+            {"mold_change_over": self.name},
+            "name"
+        )
+
+        if not lc_name:
+            return
+
+        lc = frappe.get_doc("Line Clearance", lc_name)
+
+        if lc.docstatus == 1:
+            lc.cancel()
+
+        lc.delete(ignore_permissions=True)
+
+    def delete_quality_inspections(self):
+        inspections = frappe.get_all(
+            "Quality Inspection",
+            filters={
+                "custom_mold_change_over": self.name
+            },
+            pluck="name"
+        )
+
+        for qi_name in inspections:
+            qi = frappe.get_doc("Quality Inspection", qi_name)
+
+            if qi.docstatus == 1:
+                qi.cancel()
+
+            qi.delete(ignore_permissions=True)

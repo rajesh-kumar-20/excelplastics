@@ -81,22 +81,16 @@ def create_quality_inspections(doc):
         qi.custom_job_card = doc.custom_jobcard
 
         qi.inspection_type = inspection_type
-
         qi.custom_production_qty = doc.fg_completed_qty
-
         qi.sample_size = 0
-
         qi.remarks = (
             f"Auto created from Stock Entry {doc.name}"
         )
 
         qi.uom = row.uom
         qi.batch_no = row.batch_no
-
         qi.inspected_by = frappe.session.user
-
         qi.custom_is_final_inspection = 1
-
         qi.insert(ignore_permissions=True)
 # ============================================================
 # Before Delete

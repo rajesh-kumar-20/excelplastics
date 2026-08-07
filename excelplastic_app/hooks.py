@@ -160,7 +160,7 @@ doctype_list_js = {
 
 override_doctype_class = {
     "Job Card": "excelplastic_app.overrides.job_card.CustomJobCard",
-    # "Stock Entry": "excelplastic_app.overrides.stock_entry.CustomStockEntry",
+    "Stock Entry": "excelplastic_app.overrides.stock_entry.CustomStockEntry",
 }
 # Document Events
 # ---------------
