@@ -159,3 +159,24 @@ frappe.ui.form.on('Delivery Note', {
         }
     }
 });
+
+
+
+frappe.ui.form.on("Delivery Note", {
+    custom_is_sample_product(frm) {
+        if (frm.doc.custom_is_sample_product) {
+            (frm.doc.items || []).forEach(row => {
+                frappe.model.set_value(row.doctype, row.name, "rate", 0);
+            });
+        }
+    },
+    validate(frm) {
+        if (!frm.doc.custom_is_sample_product) {
+            return;
+        }
+
+        (frm.doc.items || []).forEach(row => {
+            frappe.model.set_value(row.doctype, row.name, "rate", 0);
+        });
+    }
+});

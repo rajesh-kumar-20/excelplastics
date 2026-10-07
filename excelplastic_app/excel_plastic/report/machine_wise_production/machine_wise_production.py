@@ -108,17 +108,32 @@ def get_data(filters, periods):
 
     query = f"""
         SELECT
-            DATE(jc.posting_date) as day,
+            DATE(jctl.from_time) AS day,
             jc.workstation,
-            jc.item_name as item,
-            SUM(IFNULL(jc.for_quantity, 0)) as qty
-        FROM `tabJob Card` jc
-        LEFT JOIN `tabWork Order` wo ON wo.name = jc.work_order
-        WHERE 
+            jc.item_name AS item,
+            SUM(IFNULL(jctl.completed_qty, 0)) AS qty
+        FROM `tabJob Card Time Log` jctl
+
+        INNER JOIN `tabJob Card` jc
+            ON jc.name = jctl.parent
+
+        LEFT JOIN `tabWork Order` wo
+            ON wo.name = jc.work_order
+
+        WHERE
             jc.docstatus = 1
-            AND jc.posting_date BETWEEN %(from_date)s AND %(to_date)s
+            AND jctl.from_time IS NOT NULL
+            AND jctl.from_time >= %(from_date)s
+            AND jctl.from_time < DATE_ADD(%(to_date)s, INTERVAL 1 DAY)
             {conditions}
-        GROUP BY day, jc.workstation, wo.production_item
+
+        GROUP BY
+            DATE(jctl.from_time),
+            jc.workstation,
+            wo.production_item
+
+        ORDER BY
+            DATE(jctl.from_time)
     """
 
     raw = frappe.db.sql(query, filters, as_dict=True)
@@ -135,7 +150,6 @@ def get_data(filters, periods):
                 "total": 0,
             }
 
-            # ✅ initialize all days as blank (NOT 0)
             for p in periods:
                 data_map[key][p] = None
 
@@ -144,8 +158,10 @@ def get_data(filters, periods):
         data_map[key][day_key] = row["qty"]
         data_map[key]["total"] += row["qty"]
 
-    # ✅ Sort output
     return sorted(
         data_map.values(),
-        key=lambda x: (x["workstation"] or "", x["item"] or ""),
+        key=lambda x: (
+            x["workstation"] or "",
+            x["item"] or "",
+        ),
     )

@@ -112,7 +112,7 @@ def submit_first_piece_documents(doc):
         {"job_card": doc.reference_name},
         "name",
     )
-
+    # mco_name = doc.custom_mold_change_over
     if not mco_name:
         return
 
@@ -218,7 +218,7 @@ def process_final_inspection(doc):
         )
 
         accepted_se.insert(ignore_permissions=True)
-        accepted_se.submit()
+        # accepted_se.submit()
 
     other_se = make_stock_entry(doc)
 

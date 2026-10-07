@@ -1,37 +1,13 @@
-frappe.ui.form.on('Item', {
-  refresh: function(frm) {
-    frm.set_query('custom_mold_id', function() {
-      return {
-        filters: {
-          quality_inspection_template: ["!=", ""],
-        
-        }
-      };
-    });
-  }
-});
-
-frappe.ui.form.on('Item', {
-    onload: function(frm) {
-
-        frm.set_query('quality_inspection_template', function() {
-            return {
-                filters: {
-                    quality_inspection_template_name: frm.doc.name
-                }
-            };
-        });
-
-        frm.fields_dict.quality_inspection_template.new_doc = function() {
-
-            frappe.route_options = {
-                quality_inspection_template_name: frm.doc.name
-            };
-
-            frappe.new_doc('Quality Inspection Template');
-        };
-    }
-});
+// frappe.ui.form.on('Item', {
+//     onload: function(frm) {
+//         frm.fields_dict.quality_inspection_template.new_doc = function() {
+//             frappe.route_options = {
+//                 custom_item: frm.doc.name
+//             };
+//             frappe.new_doc('Quality Inspection Template');
+//         };
+//     }
+// });
 
 
 frappe.ui.form.on('Item', {
@@ -116,32 +92,6 @@ frappe.ui.form.on('Item', {
 });
 
 
-
-
-
-
-
-
-// Utility function to populate parameters in Item
-function populate_qi_parameters(frm, source_parameters) {
-  source_parameters.forEach(param => {
-    const row = frm.add_child("item_quality_inspection_parameter");
-    
-    // Replace/add keys here based on your actual child table fields
-    
-    row.specification = param.specification;
-    row.numeric = param.numeric;
-    row.value = param.value;
-    row.min_value = param.min_value;
-    row.max_value = param.max_value;
-    row.custom_uom = param.custom_uom;
-    row.formula_based_criteria=param.formula_based_criteria;
-    row.acceptance_formula=param.acceptance_formula;
-  });
-
-  frm.refresh_field("item_quality_inspection_parameter");
-}
-
 // Main trigger on Table MultiSelect field
 frappe.ui.form.on('Item', {
   custom_mold_id: function(frm) {
@@ -189,3 +139,20 @@ frappe.ui.form.on('Item', {
   }
 });
 
+// Utility function to populate parameters in Item
+function populate_qi_parameters(frm, source_parameters) {
+  source_parameters.forEach(param => {
+    const row = frm.add_child("item_quality_inspection_parameter");
+        
+    row.specification = param.specification;
+    row.numeric = param.numeric;
+    row.value = param.value;
+    row.min_value = param.min_value;
+    row.max_value = param.max_value;
+    row.custom_uom = param.custom_uom;
+    row.formula_based_criteria=param.formula_based_criteria;
+    row.acceptance_formula=param.acceptance_formula;
+  });
+
+  frm.refresh_field("item_quality_inspection_parameter");
+}

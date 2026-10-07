@@ -103,15 +103,15 @@ class MoldChangeOver(Document):
         ]
 
         for template in templates:
-            if frappe.db.exists(
-                "Quality Inspection",
-                {
-                    "reference_type": "Job Card",
-                    "reference_name": self.job_card,
-                    "quality_inspection_template": template,
-                },
-            ):
-                continue
+            # if frappe.db.exists(
+            #     "Quality Inspection",
+            #     {
+            #         "reference_type": "Job Card",
+            #         "reference_name": self.job_card,
+            #         "quality_inspection_template": template,
+            #     },
+            # ):
+            #     continue
 
             qi = frappe.get_doc(
                 {

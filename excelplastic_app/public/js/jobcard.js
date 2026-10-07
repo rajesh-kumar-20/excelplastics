@@ -1,75 +1,270 @@
 frappe.ui.form.on("Job Card", {
-    before_submit: function(frm) {
-    if (frm.__handled_by_custom_complete) {
-        frm.__handled_by_custom_complete = false;
-        return;
-    }
-    const { total_completed, total_rejection } = compute_totals(frm);
-    const original_qty = frm.doc.for_quantity || 0;
-    const produced = total_completed; // ✅ ignore rejection
-    const remaining = original_qty - produced;
-    if (remaining <= 0) return;
-    frappe.validated = false;
-    let d = new frappe.ui.Dialog({
-        title: __("Remaining Quantity Detected"),
-        fields: [
-            {
-                fieldname: "employee",
-                fieldtype: "Link",
-                options: "Employee",
-                label: __("Next Shift Operator"),
-                reqd: 1
-            }
-        ],
-        primary_action_label: __("Continue & Create New Job Card"),
-        primary_action(values) {
-            d.hide();
-            frm.__handled_by_custom_complete = true;
-            // CRITICAL: Update old Job Card quantity
-            frm.set_value("for_quantity", produced);
-            frm.save().then(() => {
-                //Submit current Job Card
-                frm.save('Submit').then(() => {
-                    //Create new Job Card
-                    frappe.confirm(
-                        __("Start the new Job Card?"),
-                    
-                        () => {
-                            create_and_start_new_job_card(
-                                frm,
-                                remaining,
-                                values.employee,
-                                true
-                            );
-                        },
-                    
-                        () => {
-                            create_and_start_new_job_card(
-                                frm,
-                                remaining,
-                                values.employee,
-                                false
-                            );
-                        }
-                    );
+    before_submit: async function(frm) {
+        const { total_completed, total_rejection } = compute_totals(frm);
+        // ERPNext STYLE OVERPRODUCTION VALIDATION
+            // Get Work Order quantity
+            const wo_res = await frappe.db.get_value("Work Order",frm.doc.work_order,"qty");
+            const wo_qty = flt(wo_res.message?.qty || 0);
+            
+            // Get allowed overproduction percentage
+            const settings_res = await frappe.db.get_single_value("Additional Manufacturing Settings", "overproduction_percentage_for_job_card");
+            const overproduction_percentage = flt(settings_res || 0);
+            
+            // Calculate maximum allowed quantity
+            const allowed_qty = Math.round(wo_qty + (wo_qty * overproduction_percentage / 100));
+            
+            // Get previous Job Cards for this Work Order + Operation
+            const job_cards = await frappe.db.get_list(
+                "Job Card",
+                {
+                    filters: {
+                        work_order: frm.doc.work_order,
+                        operation_id: frm.doc.operation_id,
+                        docstatus: ["!=", 2],
+                        name: ["!=", frm.doc.name]
+                    },
+                    fields: [
+                        "name",
+                        "total_completed_qty"
+                    ],
+                    limit_page_length: 0
+                }
+            );
+    
+            // Previous Job Cards completed quantity
+            const previous_completed_qty = (job_cards || []).reduce((sum, row) => sum + flt(row.total_completed_qty || 0), 0);
+    
+            // Current Job Card completed quantity
+            const current_completed_qty = flt(frm.doc.total_completed_qty || 0);
+    
+            // Total actual completed quantity
+            const total_completed_qty = previous_completed_qty + current_completed_qty;
+    
+            // Block overproduction
+            if (total_completed_qty > allowed_qty) {
+                const pending_approval = await frappe.db.get_list(
+                "Overproduction Approval",
+                {
+                    filters: {
+                        job_card: frm.doc.name,
+                        docstatus: ["!=", 2]
+                    },
+                    fields: ["name"],
+                    limit_page_length: 1
+                }
+            );
+        
+            if (pending_approval && pending_approval.length) {
+
+                frappe.validated = false;
+        
+                frappe.msgprint({
+                    title: __("Overproduction Approval Pending"),
+                    indicator: "orange",
+                    message: __(
+                        `Overproduction Approval <b>${pending_approval[0].name}</b> ` +
+                        `is pending`
+                    )
                 });
+        
+                return;
+            }
+
+            // Stop normal Job Card submission
+            frappe.validated = false;
+        
+            const overproduction_qty = total_completed_qty - wo_qty;
+            const approval_overproduction_qty = total_completed_qty - allowed_qty;
+        
+            // =========================================================
+            // DIALOG 1 - OVERPRODUCTION DETAILS
+            // =========================================================
+        
+            const overproduction_dialog = new frappe.ui.Dialog({
+                title: __("Overproduction Detected"),
+        
+                fields: [
+                    {
+                        fieldname: "html",
+                        fieldtype: "HTML"
+                    }
+                ],
+        
+                primary_action_label: __("Send for Approval"),
+        
+                primary_action() {
+                    overproduction_dialog.hide();
+        
+                    // =================================================
+                    // DIALOG 2 - APPROVAL DETAILS
+                    // =================================================
+        
+                    const approval_dialog = new frappe.ui.Dialog({
+                        title: __("Send Overproduction For Approval"),
+        
+                        fields: [
+                            {
+                                fieldname: "operator",
+                                fieldtype: "Link",
+                                options: "Employee",
+                                label: __("Operator"),
+                                reqd: 1
+                            },
+                            {
+                                fieldname: "reason_for_overproduction",
+                                fieldtype: "Small Text",
+                                label: __("Reason For Overproduction"),
+                                reqd: 1
+                            }
+                        ],
+        
+                        primary_action_label: __("Submit"),
+        
+                        primary_action(values) {
+        
+                            frappe.call({
+                                method: "frappe.client.insert",
+                                args: {
+                                    doc: {
+                                        doctype: "Overproduction Approval",
+        
+                                        // Automatically from Job Card
+                                        job_card: frm.doc.name,
+                                        production_item: frm.doc.production_item,
+                                        item_name: frm.doc.item_name,
+        
+                                        // User enters these
+                                        operator: values.operator,
+                                        reason_for_overproduction: values.reason_for_overproduction,
+                                        // Automatically calculated
+                                        overproduction_qty: approval_overproduction_qty
+                                    }
+                                },
+        
+                                callback(r) {
+                                    if (!r.message) {
+                                        return;
+                                    }
+                                    // Mark Job Card as overproduced
+                                    frappe.db.set_value("Job Card", frm.doc.name, "custom_is_over_produced", 1)
+                                    .then(() => {
+                                    
+                                        frm.doc.custom_is_over_produced = 1;
+                                        frm.refresh_field("custom_is_over_produced");
+                                    
+                                        approval_dialog.hide();
+                                    
+                                        frappe.msgprint({
+                                            title: __("Approval Sent"),
+                                            indicator: "orange",
+                                            message: __(
+                                                `Overproduction Approval <b>${r.message.name}</b> has been created ` +
+                                                `for Job Card <b>${frm.doc.name}</b>.`
+                                            )
+                                        });
+                                    });
+                                }
+                            });
+                        }
+                    });
+        
+                    approval_dialog.show();
+                }
+            });
+        
+            // =========================================================
+            // DIALOG 1 CONTENT
+            // =========================================================
+        
+            overproduction_dialog.fields_dict.html.$wrapper.html(`
+                <div style="font-size: 14px; line-height: 1.8;">
+                    <div>
+                        Work Order Quantity: <b>${wo_qty}</b>
+                    </div>
+                    <div>
+                        Allowed Overproduction: <b>${overproduction_percentage}%</b>
+                    </div>
+                    <div>
+                        Allowed Quantity: <b>${allowed_qty - wo_qty}</b>
+                    </div>
+                    <div>
+                        Overproduced Quantity: <b>${overproduction_qty}</b>
+                    </div>
+                    <div>
+                        Quantity requiring approval: <b style="color: red;">${approval_overproduction_qty}</b>
+                    </div>
+                </div>
+            `);        
+            overproduction_dialog.show();
+        }
+        // =========================================================
+        // EXISTING REMAINING QUANTITY LOGIC — UNCHANGED
+        // =========================================================
+        const original_qty = frm.doc.for_quantity || 0;
+        const produced = total_completed; // ignore rejection
+        const remaining = original_qty - produced;
+    
+        if (remaining <= 0) return;
+        frappe.validated = false;
+        let d = new frappe.ui.Dialog({
+            title: __("Remaining Quantity Detected"),
+            fields: [
+                {
+                    fieldname: "employee",
+                    fieldtype: "Link",
+                    options: "Employee",
+                    label: __("Next Shift Operator"),
+                    reqd: 1
+                }
+            ],
+            primary_action_label: __("Continue & Create New Job Card"),
+            primary_action(values) {
+                d.hide();
+                // CRITICAL: Update old Job Card quantity
+                frm.set_value("for_quantity", produced);
+                frm.save().then(() => {
+                    // Submit current Job Card
+                    frm.save("Submit").then(() => {
+                        // Create new Job Card
+                        frappe.confirm(
+                            __("Start the new Job Card?"),
+    
+                            () => {
+                                create_and_start_new_job_card(frm, remaining, values.employee, true);
+                            },
+    
+                            () => {
+                                create_and_start_new_job_card(frm, remaining, values.employee, false);
+                            }
+                        );
+                    });
+                });
+            }
+        });
+    
+        d.show();
+    },
+
+    refresh(frm) {
+        
+        if (!frm.is_new()) {
+            frm.page.add_action_icon('file', () => {
+                const url =
+                    `/printview?doctype=${encodeURIComponent(frm.doctype)}` +
+                    `&name=${encodeURIComponent(frm.doc.name)}` +
+                    `&format=${encodeURIComponent('Job Card Template')}` +
+                    `&no_letterhead=0`;
+                window.open(url, '_blank');
             });
         }
-    });
-    d.show();
-},
-    refresh(frm) {
+        
         frm.add_custom_button("QC Report", () => {
             let url = `/printview?doctype=Job Card&name=${frm.doc.name}&format=QC Summary&no_letterhead=0`;
             window.open(url);
         });
-        // --------------------------------------------------
         // HIDE STANDARD COMPLETE JOB BUTTON
-        // --------------------------------------------------
         $('button[data-label="Complete%20Job"]').hide();
-        // --------------------------------------------------
         // SAFE AUTO START AFTER NEW JOB CARD CREATION
-        // --------------------------------------------------
         if (
             window._new_jobcard_to_start &&
             window._new_jobcard_to_start === frm.doc.name &&
@@ -83,9 +278,7 @@ frappe.ui.form.on("Job Card", {
                 validate_and_start(frm, btn[0]);
             }
         }
-        // --------------------------------------------------
         // POST-START MCO HOOK
-        // --------------------------------------------------
         if (
             window._pending_mco &&
             window._pending_mco_jobcard === frm.doc.name &&
@@ -93,9 +286,7 @@ frappe.ui.form.on("Job Card", {
         ) {
             create_mco_after_start(frm);
         }
-        // --------------------------------------------------
         // INSTALL START JOB GUARD (ONCE)
-        // --------------------------------------------------
         if (!window._start_job_guard_installed) {
             window._start_job_guard_installed = true;
             window._allow_start_job = false;
@@ -118,39 +309,29 @@ frappe.ui.form.on("Job Card", {
                 true
             );
         }
-        // --------------------------------------------------
         // PAUSE JOB INTERCEPTOR (ONCE)
-        // --------------------------------------------------
         if (!window._pause_job_guard_installed) {
             window._pause_job_guard_installed = true;
             document.addEventListener(
                 "click",
                 function (e) {
-        
                     const btn = e.target.closest(
                         'button[data-label="Pause Job"], button[data-label="Pause%20Job"]'
                     );
-        
                     if (!btn) return;
-        
                     if (!cur_frm || cur_frm.doctype !== "Job Card") return;
-        
                     if (cur_frm.__allow_pause) {
                         cur_frm.__allow_pause = false;
                         return;
                     }
-        
                     e.preventDefault();
                     e.stopImmediatePropagation();
-        
                     let active_row =
                         (cur_frm.doc.time_logs || []).find(r => !r.to_time);
-        
                     if (!active_row) {
                         frappe.msgprint(__('No running time log found.'));
                         return;
                     }
-        
                     frappe.prompt(
                         [{
                             fieldname: 'pause_reason',
@@ -185,27 +366,20 @@ frappe.ui.form.on("Job Card", {
                 },
                 true
             );
-        }        // --------------------------------------------------
+        }  
         // PREVENT CHANGES ON SUBMITTED DOC
-        // --------------------------------------------------
         if (frm.doc.docstatus === 1) return;
-        // --------------------------------------------------
         // COMPUTE TOTALS
-        // --------------------------------------------------
         const { total_completed, total_rejection } = compute_totals(frm);
         const qty = frm.doc.for_quantity || 0;
-        // --------------------------------------------------
         // HIDE START / STOPWATCH WHEN DONE
-        // --------------------------------------------------
         setTimeout(() => {
             if (total_completed  >= qty) {
                 $(".stopwatch").hide();
                 $('button[data-label="Start%20Job"]').hide();
             }
         }, 300);
-        // --------------------------------------------------
         // CUSTOM COMPLETE BUTTON
-        // --------------------------------------------------
         if (
             frm.doc.status === "Work In Progress" &&
             !frm.doc.is_paused &&
@@ -224,24 +398,20 @@ frappe.ui.form.on("Job Card", {
                     "border-color": "#000"
                 });
         }
-        // --------------------------------------------------
         // QC REPORT BUTTON
-        // --------------------------------------------------
     },
     validate(frm) {
         if (frm.doc.docstatus === 1) return;
         const { total_completed, total_rejection } = compute_totals(frm);
         // if (total_completed + total_rejection > (frm.doc.for_quantity || 0)) {
-        if (total_completed > (frm.doc.for_quantity || 0)) {
-            frappe.throw(
-                __("Completed quantity cannot exceed Qty to Manufacture")
-            );
-        }
+        // if (total_completed > (frm.doc.for_quantity || 0)) {
+        //     frappe.throw(
+        //         __("Completed quantity cannot exceed Qty to Manufacture")
+        //     );
+        // }
     }
 });
-// ==================================================
 // TOTALS
-// ==================================================
 function compute_totals(frm) {
     const total_completed = (frm.doc.time_logs || []).reduce(
         (sum, row) => sum + (row.completed_qty || 0),
@@ -256,9 +426,7 @@ function compute_totals(frm) {
     }
     return { total_completed, total_rejection };
 }
-// ==================================================
 // COMPLETE JOB FLOW
-// ==================================================
 function open_completion_dialog(frm, total_completed, total_rejection) {
     const remaining_qty = frm.doc.for_quantity - total_completed;
     const dialog = new frappe.ui.Dialog({
@@ -351,9 +519,7 @@ function handle_completion(frm, values, remaining_qty, auto_start) {
         frappe.msgprint("❌ Employee is mandatory for partial completion");
         return;
     }
-    // --------------------------------------------------
     // 🔥 MARK DOCUMENT DIRTY (CRITICAL)
-    // --------------------------------------------------
     const logs = frm.doc.time_logs || [];
     const active_log = logs.find(r => !r.to_time);
 
@@ -361,35 +527,30 @@ function handle_completion(frm, values, remaining_qty, auto_start) {
         frappe.msgprint("❌ No active time log found");
         return;
     }
-
     frappe.model.set_value(
         active_log.doctype,
         active_log.name,
         "to_time",
         frappe.datetime.now_datetime()
     );
-
     frappe.model.set_value(
         active_log.doctype,
         active_log.name,
         "completed_qty",
         completed
     );
-
     frappe.model.set_value(
         active_log.doctype,
         active_log.name,
         "custom_rejection_qty",
         rejected
     );
-
     const produced = completed; // ✅ ignore rejection
     const balance = remaining_qty - completed;
     const { total_completed, total_rejection } = compute_totals(frm);
     // 🔥 REQUIRED FOR FG STOCK ENTRY
     frm.set_value("for_quantity", total_completed);
     frm.save().then(() => {
-
         frappe.call({
             method: "frappe.client.submit",
             args: {
@@ -407,7 +568,6 @@ function handle_completion(frm, values, remaining_qty, auto_start) {
                 }
             }
         });
-    
     });
 }
 function create_and_start_new_job_card(frm, qty, employee, auto_start = true) {
@@ -431,21 +591,35 @@ function create_and_start_new_job_card(frm, qty, employee, auto_start = true) {
         }
     }
     frappe.call({
-        method: "frappe.client.insert",
-        args: { doc: new_doc },
-        callback(res) {
-            if (!res.message) return;
-            const new_name = res.message.name;
-            // Save for later validation
-            window._new_jobcard_to_start = auto_start ? new_name : null;
-            frappe.set_route("Form", "Job Card", new_name);
+    method: "frappe.client.insert",
+    args: { doc: new_doc },
+    callback(res) {
+        if (!res.message) {
+            return;
+        }
+        const new_name = res.message.name;
+        // Save for later validation
+        window._new_jobcard_to_start = auto_start ? new_name : null;
+        frappe.set_route("Form", "Job Card", new_name);
+    },
+        error(err) {
+            frappe.call({
+                method: "excelplastic_app.api.log_jobcard_debug",
+                args: {
+                    title: `JC INSERT ERROR - ${frm.doc.name}`,
+                    message: JSON.stringify({
+                        error: err,
+                        new_doc
+                    }, null, 2),
+                    reference_doctype: frm.doctype,
+                    reference_name: frm.doc.name
+                }
+            });
         }
     });
 }
 async function validate_and_start(frm, btn) {
-    // --------------------------------------------------
     //  WORKSTATION MANDATORY CHECK
-    // --------------------------------------------------
     if (!frm.doc.workstation) {
         frappe.msgprint({
             title: __("Missing Workstation"),
@@ -454,9 +628,7 @@ async function validate_and_start(frm, btn) {
         });
         return; // ⛔ BLOCK START JOB
     }
-    // --------------------------------------------------
     //  MOLD AVAILABILITY VALIDATION
-    // --------------------------------------------------
     if (frm.doc.custom_mold) {
         const res = await frappe.db.get_value(
             "Mold Master",
@@ -475,13 +647,12 @@ async function validate_and_start(frm, btn) {
             return; // ⛔ BLOCK START JOB
         }
     }
-    // --------------------------------------------------
     //  WORKSTATION BUSY VALIDATION (START JOB ONLY)
-    // --------------------------------------------------
     let running = await frappe.db.get_list("Job Card", {
         filters: {
             workstation: frm.doc.workstation,
             status: "Work In Progress",
+            custom_is_over_produced: 0,
             name: ["!=", frm.doc.name]
         },
         limit: 1
@@ -502,11 +673,7 @@ async function validate_and_start(frm, btn) {
     let item = frm.doc.item_name;
     let prev_item = null;
     if (prev) {
-        const r = await frappe.db.get_value(
-            "Mold Master",
-            prev,
-            "description"
-        );
+        const r = await frappe.db.get_value("Mold Master", prev, "description");
         prev_item = r?.message?.description || "";
     }
     if (prev && curr && prev !== curr) {
@@ -556,9 +723,7 @@ function trigger_native_start(btn) {
     }, 30);
 }
 
-// ==================================================
 // CREATE MCO AFTER START
-// ==================================================
 async function create_mco_after_start(frm) {
     let logs = frm.doc.time_logs || [];
     let active_log = logs.filter(l => !l.to_time)
@@ -568,9 +733,8 @@ async function create_mco_after_start(frm) {
     window._pending_mco_jobcard = null;
     await create_mco(frm, active_log.employee);
 }
-// ==================================================
+
 // CREATE MOLD CHANGE OVER (FULL LOGIC)
-// ==================================================
 async function create_mco(frm, operator = "") {
 
     // 🔹 Fetch BOM
@@ -601,7 +765,6 @@ async function create_mco(frm, operator = "") {
         ]);
 
         let item = res.message;
-
         // ✅ Material Grade
         if (item.custom_is_material_grade && !material_grade) {
             material_grade = rm.item_code;
@@ -654,18 +817,15 @@ async function create_mco(frm, operator = "") {
             mold_unload_start_time: frappe.datetime.now_datetime(),
             machine_name: frm.doc.workstation,
             machine_running_status: "Ok",
-
             // ✅ Clean Fields
             material_grade,
             master_batch,
             color: color_percentage,
             weight,
-
             total_quantity: frm.doc.for_quantity,
             customer_code,
             sales_order,
             operator,
-
             quality_approved: "Accepted",
             line_clearance: 1,
             first_piece_approval: 1
@@ -680,7 +840,6 @@ async function create_mco(frm, operator = "") {
             message: __(`Mold Change Over created <b>${mco.name}</b>`)
         });
     }
-
     // 🔹 Update Workstation Mold
     try {
         await frappe.xcall("frappe.client.set_value", {
@@ -694,75 +853,92 @@ async function create_mco(frm, operator = "") {
     }
 }
 
-frappe.ui.form.on('Job Card Time Log', {
-    from_time(frm, cdt, cdn) {
-        detect_shift_from_time_range(frm, cdt, cdn);
-    },
-    to_time(frm, cdt, cdn) {
-        detect_shift_from_time_range(frm, cdt, cdn);
-    },
-    custom_shift_type(frm, cdt, cdn) {
-        // ONLY user-driven shift change updates time
-        if (frm._setting_shift_from_time) return;
-        set_time_from_shift_type(frm, cdt, cdn);
-    }
-});
+// frappe.ui.form.on('Job Card Time Log', {
+//     from_time(frm, cdt, cdn) {
+//         detect_shift_after_both_times(frm, cdt, cdn);
+//     },
+//     to_time(frm, cdt, cdn) {
+//         detect_shift_after_both_times(frm, cdt, cdn);
+//     },
+//     custom_shift_type(frm, cdt, cdn) {
+//         // from detect_shift_after_both_times()
+//         if (frm._setting_shift_from_time) {
+//             return;
+//         }
+//         // User manually selected shift
+//         set_time_from_shift_type(frm, cdt, cdn);
+//     }
+// });
+
+// function detect_shift_after_both_times(frm, cdt, cdn) {
+//     let row = locals[cdt][cdn];
+//     // Detect shift only after both times are entered
+//     if (!row.from_time || !row.to_time) {
+//         return;
+//     }
+//     let from = moment(row.from_time);
+//     let minutes = from.hour() * 60 + from.minute();
+//     let shift =
+//         (minutes >= 420 && minutes < 1140)
+//             ? "Day"
+//             : "Night";
+//     // Prevent custom_shift_type event
+//     frm._setting_shift_from_time = true;
+//     frappe.model.set_value(
+//         cdt,
+//         cdn,
+//         "custom_shift_type",
+//         shift
+//     ).then(() => {
+//         frm._setting_shift_from_time = false;
+//     });
+// }
+
+// function set_time_from_shift_type(frm, cdt, cdn) {
+
+//     let row = locals[cdt][cdn];
+//     if (!row.custom_shift_type) {
+//         return;
+//     }
+//     frappe.db.get_value(
+//         "Shift Type",
+//         row.custom_shift_type,
+//         ["start_time", "end_time"]
+//     ).then(r => {
+//         if (!r.message) {
+//             return;
+//         }
+//         let base_date;
+//         // Preserve existing date if available
+//         if (row.from_time) {
+//             base_date = moment(row.from_time).format("YYYY-MM-DD");
+//         } else {
+//             base_date = frappe.datetime.get_today();
+//         }
+//         let from_time = moment(
+//             `${base_date} ${r.message.start_time}`
+//         );
+//         let to_time = moment(
+//             `${base_date} ${r.message.end_time}`
+//         );
+//         // Handle overnight shifts
+//         if (to_time.isBefore(from_time)) {
+//             to_time.add(1, "day");
+//         }
+//         frappe.model.set_value(
+//             cdt,
+//             cdn,
+//             "from_time",
+//             from_time.format("YYYY-MM-DD HH:mm:ss")
+//         );
+//         frappe.model.set_value(
+//             cdt,
+//             cdn,
+//             "to_time",
+//             to_time.format("YYYY-MM-DD HH:mm:ss")
+//         );
+//     });
+// }
 
 
-function detect_shift_from_time_range(frm, cdt, cdn) {
-    let row = locals[cdt][cdn];
-    if (!row.from_time) return;
-
-    let from = moment(frappe.datetime.str_to_obj(row.from_time));
-
-    let minutes = from.hour() * 60 + from.minute();
-
-    let shift = (minutes >= 420 && minutes < 1140) ? "Day" : "Night";
-    // 420 = 7*60, 1140 = 19*60
-
-    frm._setting_shift_from_time = true;
-
-    frappe.model.set_value(cdt, cdn, 'custom_shift_type', shift)
-        .then(() => {
-            frm._setting_shift_from_time = false;
-        });
-}
-function set_time_from_shift_type(frm, cdt, cdn) {
-    let row = locals[cdt][cdn];
-    if (!row.custom_shift_type) return;
-
-    let today = frappe.datetime.get_today();
-
-    frappe.db.get_value(
-        'Shift Type',
-        row.custom_shift_type,
-        ['start_time', 'end_time']
-    ).then(r => {
-        if (!r.message) return;
-        let from_time = moment(`${today} ${r.message.start_time}`);
-        let to_time = moment(`${today} ${r.message.end_time}`);
-        if (to_time.isBefore(from_time)) {
-            to_time.add(1, 'day');
-        }
-        frappe.model.set_value(cdt, cdn, 'from_time',
-            from_time.format("YYYY-MM-DD HH:mm:ss"));
-        frappe.model.set_value(cdt, cdn, 'to_time',
-            to_time.format("YYYY-MM-DD HH:mm:ss"));
-    });
-}
-frappe.ui.form.on('Job Card', {
-    form_render(frm, cdt, cdn) {
-        if (cdt !== 'Job Card Time Log') return;
-        let row = locals[cdt][cdn];
-        let grid_row = frm.fields_dict['time_logs'].grid.get_row(cdn);
-        if (!grid_row) return;
-        // 🕘 from_time → clear on focus
-        grid_row.get_field('from_time').$input.on('focus', function () {
-            frappe.model.set_value(cdt, cdn, 'from_time', null);
-        });
-        // 🕘 to_time → clear on focus
-        grid_row.get_field('to_time').$input.on('focus', function () {
-            frappe.model.set_value(cdt, cdn, 'to_time', null);
-        });
-    }
-});
+s

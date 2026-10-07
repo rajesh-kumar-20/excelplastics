@@ -11,26 +11,30 @@ def on_update(doc, method):
 # Before Save
 # ---------------------------------------------------------------------
 
+
 def set_item_flags(doc):
+    # Reset all flags
     doc.custom_is_material_grade = 0
     doc.custom_is_color_grade = 0
     doc.custom_is_finished_good = 0
     doc.custom_is_additive = 0
     doc.custom_is_packing_material = 0
 
-    if doc.naming_series == "RM.##":
+    item_code = doc.name or ""
+
+    if item_code.startswith("RM"):
         doc.custom_is_material_grade = 1
 
-    elif doc.naming_series == "MB.###":
+    elif item_code.startswith("MB"):
         doc.custom_is_color_grade = 1
 
-    elif doc.naming_series == "FG.####":
+    elif item_code.startswith("FG"):
         doc.custom_is_finished_good = 1
 
-    elif doc.naming_series == "AD.##":
+    elif item_code.startswith("AD"):
         doc.custom_is_additive = 1
 
-    elif doc.naming_series in ["PM.###", "PKG.##"]:
+    elif item_code.startswith(("PM", "PKG")):
         doc.custom_is_packing_material = 1
 
 

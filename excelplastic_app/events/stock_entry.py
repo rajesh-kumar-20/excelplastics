@@ -79,7 +79,7 @@ def create_quality_inspections(doc):
 
         qi.custom_work_order = doc.work_order
         qi.custom_job_card = doc.custom_jobcard
-
+        qi.custom_workstation = doc.custom_workstation
         qi.inspection_type = inspection_type
         qi.custom_production_qty = doc.fg_completed_qty
         qi.sample_size = 0

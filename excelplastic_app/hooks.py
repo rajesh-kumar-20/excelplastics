@@ -45,12 +45,6 @@ app_license = "mit"
 # include js in doctype views
 # doctype_js = {"doctype" : "public/js/doctype.js"}
 
-
-# doctype_js={}
-# doctype_js={}
-# doctype_js={}
-# doctype_js={}
-# doctype_js={"Job Card":"public/js/jobcard.js"}
 doctype_js={
     "Prospect":"public/js/prospect.js",
     "Workstation":"public/js/workstation.js",
@@ -62,12 +56,14 @@ doctype_js={
     "BOM":"public/js/bom.js",
     "Purchase Invoice":"public/js/purchase_invoice.js",
     "Quality Inspection":"public/js/quality_inspection.js",
-    "Work Order":"public/js/work_order.js"
+    "Work Order":"public/js/work_order.js",
+    "Job Card":"public/js/jobcard.js"
     }
 
 
 doctype_list_js = {
-    "Sales Order": "public/js/sales_order_list.js"
+    "Sales Order": "public/js/sales_order_list.js",
+    "Delivery Note":"public/js/delivery_note_list.js",
 }
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
@@ -160,7 +156,9 @@ doctype_list_js = {
 
 override_doctype_class = {
     "Job Card": "excelplastic_app.overrides.job_card.CustomJobCard",
-    "Stock Entry": "excelplastic_app.overrides.stock_entry.CustomStockEntry",
+    # "Stock Entry": "excelplastic_app.overrides.stock_entry.CustomStockEntry",
+    "Production Plan": "excelplastic_app.overrides.production_plan.CustomProductionPlan",
+    "Delivery Note": "excelplastic_app.overrides.status_updater.CustomDeliveryNote",
 }
 # Document Events
 # ---------------
@@ -179,6 +177,7 @@ doc_events = {
     },
     "Work Order": {
         "validate": "excelplastic_app.events.work_order.validate",
+        "before_insert": "excelplastic_app.events.work_order.before_insert",
         "before_submit": "excelplastic_app.events.work_order.before_submit",
     },
     "Item": {
@@ -198,6 +197,12 @@ doc_events = {
     "Workstation": {
         "validate": "excelplastic_app.events.workstation.validate",
         "on_update": "excelplastic_app.events.workstation.on_update",
+    },
+    "Job Card": {
+        "before_save": "excelplastic_app.events.job_card.before_save",
+        "after_save": "excelplastic_app.events.job_card.after_save",
+        "after_submit": "excelplastic_app.events.job_card.after_submit",
+        "before_cancel": "excelplastic_app.events.job_card.before_cancel",
     },
 }
 # Scheduled Tasks

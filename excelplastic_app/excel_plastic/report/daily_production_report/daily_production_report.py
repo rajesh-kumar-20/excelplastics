@@ -39,21 +39,27 @@ def get_columns():
 
 
 def get_data(filters):
+    report_date = filters.get("date")
+
+    if not report_date:
+        frappe.throw("Please select a Date.")
+
     return frappe.db.sql("""
         SELECT
             jc.workstation AS machine,
             jc.item_name,
             jc.custom_mold AS mold_id,
+
             MAX(jc.custom_cavity) AS cavity,
             MAX(jc.custom_running_cavity) AS running_cavities,
-			jc.custom_weight_per_unit AS weight,
+            MAX(jc.custom_weight_per_unit) AS weight,
 
             -- Material Grade
             (
                 SELECT woi.item_name
                 FROM `tabWork Order Item` woi
                 WHERE woi.parent = jc.work_order
-                AND woi.custom_is_material_grade = 1
+                  AND woi.custom_is_material_grade = 1
                 LIMIT 1
             ) AS material_grade,
 
@@ -62,7 +68,7 @@ def get_data(filters):
                 SELECT woi.item_name
                 FROM `tabWork Order Item` woi
                 WHERE woi.parent = jc.work_order
-                AND woi.custom_is_color_grade = 1
+                  AND woi.custom_is_color_grade = 1
                 LIMIT 1
             ) AS color_grade,
 
@@ -80,61 +86,111 @@ def get_data(filters):
                 LIMIT 1
             ) AS cycle_time,
 
-            -- 🔥 24 Hrs Quantity (Rounded)
-			ROUND(
-				(86400 / NULLIF(
-					(
-						SELECT bo.operation_time_sec
-						FROM `tabBOM Operation` bo
-						WHERE bo.parent = (
-							SELECT wo.bom_no
-							FROM `tabWork Order` wo
-							WHERE wo.name = jc.work_order
-							LIMIT 1
-						)
-						AND LOWER(bo.operation) = LOWER(jc.operation)
-						LIMIT 1
-					), 0
-				)) * MAX(jc.custom_running_cavity)
-			, 0) AS qty_24hrs,
+            -- 24 Hrs Quantity
+            ROUND(
+                (
+                    86400 / NULLIF(
+                        (
+                            SELECT bo.operation_time_sec
+                            FROM `tabBOM Operation` bo
+                            WHERE bo.parent = (
+                                SELECT wo.bom_no
+                                FROM `tabWork Order` wo
+                                WHERE wo.name = jc.work_order
+                                LIMIT 1
+                            )
+                            AND LOWER(bo.operation) = LOWER(jc.operation)
+                            LIMIT 1
+                        ),
+                        0
+                    )
+                ) * MAX(jc.custom_running_cavity),
+                0
+            ) AS qty_24hrs,
 
-            -- Production
-            COALESCE(SUM(CASE 
-                WHEN LOWER(jctl.custom_shift_type) = 'day' THEN jctl.completed_qty 
-                ELSE 0 
-            END), 0) AS prod_day,
+            /* =========================================================
+               PRODUCTION - SHIFT IS CALCULATED FROM FROM_TIME
+               ========================================================= */
 
-            COALESCE(SUM(CASE 
-                WHEN LOWER(jctl.custom_shift_type) != 'day' THEN jctl.completed_qty 
-                ELSE 0 
-            END), 0) AS prod_night,
+            COALESCE(
+                SUM(
+                    CASE
+                        WHEN LOWER(st.name) = 'day'
+                        THEN jctl.completed_qty
+                        ELSE 0
+                    END
+                ),
+                0
+            ) AS prod_day,
 
-            COALESCE(SUM(jctl.completed_qty), 0) AS prod_total,
+            COALESCE(
+                SUM(
+                    CASE
+                        WHEN LOWER(st.name) = 'night'
+                        THEN jctl.completed_qty
+                        ELSE 0
+                    END
+                ),
+                0
+            ) AS prod_night,
 
-            -- Rejection
-            COALESCE(SUM(CASE 
-                WHEN LOWER(jctl.custom_shift_type) = 'day' THEN jctl.custom_rejection_qty 
-                ELSE 0 
-            END), 0) AS rej_day,
+            COALESCE(
+                SUM(jctl.completed_qty),
+                0
+            ) AS prod_total,
 
-            COALESCE(SUM(CASE 
-                WHEN LOWER(jctl.custom_shift_type) != 'day' THEN jctl.custom_rejection_qty 
-                ELSE 0 
-            END), 0) AS rej_night,
+            /* =========================================================
+               REJECTION - SHIFT IS CALCULATED FROM FROM_TIME
+               ========================================================= */
 
-            COALESCE(SUM(jctl.custom_rejection_qty), 0) AS rej_total,
+            COALESCE(
+                SUM(
+                    CASE
+                        WHEN LOWER(st.name) = 'day'
+                        THEN jctl.custom_rejection_qty
+                        ELSE 0
+                    END
+                ),
+                0
+            ) AS rej_day,
 
-			-- 🔥 Remarks
-			GROUP_CONCAT(
-				DISTINCT NULLIF(jctl.custom_remarks, '') 
-				SEPARATOR ', '
-			) AS remarks,
+            COALESCE(
+                SUM(
+                    CASE
+                        WHEN LOWER(st.name) = 'night'
+                        THEN jctl.custom_rejection_qty
+                        ELSE 0
+                    END
+                ),
+                0
+            ) AS rej_night,
 
-            -- Efficiency
+            COALESCE(
+                SUM(jctl.custom_rejection_qty),
+                0
+            ) AS rej_total,
+
+            /* =========================================================
+               REMARKS
+               ========================================================= */
+
+            GROUP_CONCAT(
+                DISTINCT NULLIF(jctl.custom_remarks, '')
+                SEPARATOR ', '
+            ) AS remarks,
+
+            /* =========================================================
+               EFFICIENCY
+               ========================================================= */
+
             (
-                (COALESCE(SUM(jctl.completed_qty), 0) / NULLIF(
+                COALESCE(SUM(jctl.completed_qty), 0)
+                /
+                NULLIF(
                     (
-                        (86400 / NULLIF(
+                        86400
+                        /
+                        NULLIF(
                             (
                                 SELECT bo.operation_time_sec
                                 FROM `tabBOM Operation` bo
@@ -146,31 +202,102 @@ def get_data(filters):
                                 )
                                 AND LOWER(bo.operation) = LOWER(jc.operation)
                                 LIMIT 1
-                            ), 0
-                        )) * MAX(jc.custom_running_cavity)
-                    ), 0
-                )) * 100
-            ) AS efficiency,
+                            ),
+                            0
+                        )
+                    )
+                    * MAX(jc.custom_running_cavity),
+                    0
+                )
+            ) * 100 AS efficiency,
 
-            -- Rejection Efficiency
+            /* =========================================================
+               REJECTION EFFICIENCY
+               ========================================================= */
+
             (
-                (COALESCE(SUM(jctl.custom_rejection_qty), 0) / NULLIF(
-                    COALESCE(SUM(jctl.completed_qty), 0), 0
-                )) * 100
-            ) AS rejection_efficiency
+                COALESCE(SUM(jctl.custom_rejection_qty), 0)
+                /
+                NULLIF(
+                    COALESCE(SUM(jctl.completed_qty), 0),
+                    0
+                )
+            ) * 100 AS rejection_efficiency
 
         FROM `tabJob Card` jc
 
+        /* =============================================================
+           GET SHIFT TYPE FROM ACTUAL FROM_TIME
+           ============================================================= */
+
         INNER JOIN `tabJob Card Time Log` jctl
-			ON jctl.parent = jc.name
-			AND jctl.from_time >= %s
-			AND jctl.from_time < DATE_ADD(%s, INTERVAL 1 DAY)
+            ON jctl.parent = jc.name
+
+        INNER JOIN `tabShift Type` st
+            ON (
+                /* DAY SHIFT
+                   Example: 07:00 → 19:00
+                */
+                (
+                    LOWER(st.name) = 'day'
+                    AND TIME(jctl.from_time) >= st.start_time
+                    AND TIME(jctl.from_time) < st.end_time
+                )
+
+                OR
+
+                /* NIGHT SHIFT
+                   Example: 19:00 → 07:00
+                */
+                (
+                    LOWER(st.name) = 'night'
+                    AND (
+                        TIME(jctl.from_time) >= st.start_time
+                        OR TIME(jctl.from_time) < st.end_time
+                    )
+                )
+            )
+
+        /* =============================================================
+           PRODUCTION DATE WINDOW
+
+           Day Shift Start Time is the beginning of the production day.
+
+           Example:
+           Selected Date = 20-Aug-2026
+           Day Start     = 07:00
+
+           Included:
+           20-Aug 07:00 → 21-Aug 07:00
+           ============================================================= */
+
+        INNER JOIN `tabShift Type` day_shift
+            ON LOWER(day_shift.name) = 'day'
 
         WHERE jc.docstatus < 2
 
-        GROUP BY 
+          AND jctl.from_time >=
+              CONCAT(
+                  %s,
+                  ' ',
+                  TIME_FORMAT(day_shift.start_time, '%%H:%%i:%%s')
+              )
+
+          AND jctl.from_time <
+              DATE_ADD(
+                  CONCAT(
+                      %s,
+                      ' ',
+                      TIME_FORMAT(day_shift.start_time, '%%H:%%i:%%s')
+                  ),
+                  INTERVAL 1 DAY
+              )
+
+        GROUP BY
             jc.workstation,
             jc.item_name
 
-        ORDER BY jc.workstation, jc.item_name
-    """, (filters.get("date"), filters.get("date")), as_dict=1)
+        ORDER BY
+            jc.workstation,
+            jc.item_name
+    """, (report_date, report_date), as_dict=1)

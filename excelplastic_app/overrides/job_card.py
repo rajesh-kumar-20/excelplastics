@@ -34,3 +34,15 @@ class CustomJobCard(JobCard):
         )
 
         # Quantity equality validation removed
+
+
+    def get_overlap_for(self, args, open_job_cards=None):
+        """
+        Disable Job Card overlap validation.
+
+        Allows:
+        - Same employee on multiple workstations
+        - Multiple Job Cards with overlapping times
+        - Multiple employees on the same workstation at overlapping times
+        """
+        return {}
